@@ -1,0 +1,38 @@
+[project]
+name = "jsonschema2pydantic"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.10,<4.0"
+
+# Project Dependencies
+dependencies = [
+    "black>=25.1.0",
+    "isort>=6.0.1",
+    "poethepoet>=0.33.1",
+    "pre-commit>=4.2.0",
+    "pydantic>=2.10.6",
+]
+
+
+# POE Tasks
+[tool.poe.tasks]
+create-hooks        = "bash .githooks/set-hooks.sh"
+
+
+# Build System
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+# Linters
+[tool.isort]
+profile = "black"
+line_length = 79
+sections=[
+    "FUTURE",
+    "FIRSTPARTY",
+    "LOCALFOLDER",
+    "THIRDPARTY",
+    "STDLIB",
+]
