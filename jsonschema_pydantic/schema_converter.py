@@ -70,10 +70,6 @@ class SchemaConverter:
 
         if description := properties.get("description"):
             _field_args["description"] = description
-        else:
-            warnings.warn(
-                f"Property {name} is missing a description. We highly recommend adding one."
-            )
 
         _default_value = ... if name in required_keys else None
         return _field_type, Field(_default_value, **_field_args)
