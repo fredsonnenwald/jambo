@@ -1,4 +1,4 @@
-from jsonschema_pydantic import ModelSchemaBuilder
+from jsonschema_pydantic.schema_converter import SchemaConverter
 
 from pydantic import BaseModel
 
@@ -9,7 +9,7 @@ def is_pydantic_model(cls):
     return isinstance(cls, type) and issubclass(cls, BaseModel)
 
 
-class TestConversion(TestCase):
+class TestSchemaConverter(TestCase):
     def test_jsonschema_to_pydantic(self):
         schema = {
             "title": "Person",
@@ -22,7 +22,7 @@ class TestConversion(TestCase):
             "required": ["name"],
         }
 
-        model = ModelSchemaBuilder.build(schema)
+        model = SchemaConverter.build(schema)
 
         self.assertTrue(is_pydantic_model(model))
 
@@ -37,7 +37,7 @@ class TestConversion(TestCase):
             "required": ["name"],
         }
 
-        model = ModelSchemaBuilder.build(schema)
+        model = SchemaConverter.build(schema)
 
         self.assertEqual(model(name="John", age=30).name, "John")
 
@@ -52,7 +52,7 @@ class TestConversion(TestCase):
             "required": ["age"],
         }
 
-        model = ModelSchemaBuilder.build(schema)
+        model = SchemaConverter.build(schema)
 
         self.assertEqual(model(age=30).age, 30)
 
@@ -69,7 +69,7 @@ class TestConversion(TestCase):
             "required": ["age"],
         }
 
-        model = ModelSchemaBuilder.build(schema)
+        model = SchemaConverter.build(schema)
 
         self.assertEqual(model(age=30).age, 30.0)
 
@@ -86,7 +86,7 @@ class TestConversion(TestCase):
             "required": ["is_active"],
         }
 
-        model = ModelSchemaBuilder.build(schema)
+        model = SchemaConverter.build(schema)
 
         self.assertEqual(model(is_active=True).is_active, True)
 
@@ -103,7 +103,7 @@ class TestConversion(TestCase):
             "required": ["friends"],
         }
 
-        model = ModelSchemaBuilder.build(schema)
+        model = SchemaConverter.build(schema)
 
         self.assertEqual(model(friends=["John", "Jane"]).friends, ["John", "Jane"])
 
@@ -125,7 +125,7 @@ class TestConversion(TestCase):
             "required": ["address"],
         }
 
-        model = ModelSchemaBuilder.build(schema)
+        model = SchemaConverter.build(schema)
 
         obj = model(address={"street": "123 Main St", "city": "Springfield"})
 
