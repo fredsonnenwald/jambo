@@ -8,6 +8,7 @@ from jsonschema_pydantic.types import (
 )
 
 import unittest
+from typing import get_args
 
 
 class TestTypeParser(unittest.TestCase):
@@ -38,11 +39,23 @@ class TestTypeParser(unittest.TestCase):
 
     def test_object_parser(self):
         parser = ObjectTypeParser()
-        expected_definition = (object, {})
 
-        self.assertEqual(parser.from_properties("placeholder", {}), expected_definition)
+        properties = {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "age": {"type": "integer"},
+            },
+        }
 
-    def test_array_parser(self):
+        Model, _args = parser.from_properties("placeholder", properties)
+
+        obj = Model(name="name", age=10)
+
+        self.assertEqual(obj.name, "name")
+        self.assertEqual(obj.age, 10)
+
+    def test_array_of_string_parser(self):
         parser = ArrayTypeParser()
         expected_definition = (list[str], {})
 
@@ -51,3 +64,24 @@ class TestTypeParser(unittest.TestCase):
         self.assertEqual(
             parser.from_properties("placeholder", properties), expected_definition
         )
+
+    def test_array_of_object_parser(self):
+        parser = ArrayTypeParser()
+
+        properties = {
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "age": {"type": "integer"},
+                },
+            }
+        }
+
+        _type, _args = parser.from_properties("placeholder", properties)
+
+        Model = get_args(_type)[0]
+        obj = Model(name="name", age=10)
+
+        self.assertEqual(obj.name, "name")
+        self.assertEqual(obj.age, 10)

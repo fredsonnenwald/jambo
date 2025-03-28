@@ -12,10 +12,8 @@ class ArrayTypeParser(GenericTypeParser):
 
     @classmethod
     def from_properties(cls, name, properties):
-        _item_type = properties["items"]["type"]
-        if _item_type == "object":
-            _item_type = type
-        else:
-            _item_type = GenericTypeParser.get_impl(_item_type).mapped_type
+        _item_type, _item_args = GenericTypeParser.get_impl(
+            properties["items"]["type"]
+        ).from_properties(name, properties["items"])
 
         return list[_item_type], {}
