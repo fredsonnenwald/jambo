@@ -1,11 +1,10 @@
-from jsonschema_pydantic.types import GenericTypeParser
+from jambo.types import GenericTypeParser
 
 from jsonschema.exceptions import SchemaError
 from jsonschema.protocols import Validator
 from pydantic import create_model
 from pydantic.fields import Field
 
-import warnings
 from typing import Type
 
 

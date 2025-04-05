@@ -1,4 +1,4 @@
-from jsonschema_pydantic.types._type_parser import GenericTypeParser
+from jambo.types._type_parser import GenericTypeParser
 
 
 class StringTypeParser(GenericTypeParser):

@@ -1,6 +1,6 @@
 [project]
-name = "jsonschema2pydantic"
-version = "0.1.0"
+name = "jambo"
+dynamic = ["version"]
 description = "Add your description here"
 requires-python = ">=3.10,<4.0"
 
@@ -25,9 +25,12 @@ create-hooks        = "bash .githooks/set-hooks.sh"
 
 
 # Build System
+[tool.hatch.version]
+source = "vcs"
+
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 
 # Linters

@@ -1,4 +1,4 @@
-from jsonschema_pydantic.types import (
+from jambo.types import (
     ArrayTypeParser,
     FloatTypeParser,
     GenericTypeParser,

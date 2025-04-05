@@ -1,4 +1,4 @@
-from jsonschema_pydantic.schema_converter import SchemaConverter
+from jambo.schema_converter import SchemaConverter
 
 from pydantic import BaseModel
 
