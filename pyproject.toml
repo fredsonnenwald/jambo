@@ -12,10 +12,9 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "black>=25.1.0",
-    "isort>=6.0.1",
     "poethepoet>=0.33.1",
     "pre-commit>=4.2.0",
+    "ruff>=0.11.4",
 ]
 
 
@@ -34,13 +33,11 @@ build-backend = "hatchling.build"
 
 
 # Linters
-[tool.isort]
-profile = "black"
-line_length = 79
-sections=[
-    "FUTURE",
-    "FIRSTPARTY",
-    "LOCALFOLDER",
-    "THIRDPARTY",
-    "STDLIB",
+[tool.ruff.lint.isort]
+section-order=[
+    "future",
+    "first-party",
+    "local-folder",
+    "third-party",
+    "standard-library",
 ]
