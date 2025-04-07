@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Generic, Self, TypeVar
 
+from pydantic import Field
+
 T = TypeVar("T")
 
 
@@ -17,7 +19,7 @@ class GenericTypeParser(ABC, Generic[T]):
     @abstractmethod
     def from_properties(
         name: str, properties: dict[str, any]
-    ) -> tuple[type[T], dict[str, any]]: ...
+    ) -> tuple[type[T], Field]: ...
 
     @classmethod
     def get_impl(cls, type_name: str) -> Self:

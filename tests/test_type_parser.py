@@ -21,9 +21,10 @@ class TestTypeParser(unittest.TestCase):
 
     def test_int_parser(self):
         parser = IntTypeParser()
-        expected_definition = (int, {})
 
-        self.assertEqual(parser.from_properties("placeholder", {}), expected_definition)
+        type_parsing, type_validator = parser.from_properties("placeholder", {})
+
+        self.assertEqual(type_parsing, int)
 
     def test_float_parser(self):
         parser = FloatTypeParser()

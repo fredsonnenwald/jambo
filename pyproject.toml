@@ -21,7 +21,7 @@ dev = [
 # POE Tasks
 [tool.poe.tasks]
 create-hooks        = "bash .githooks/set-hooks.sh"
-
+tests               = "python -m unittest discover -s tests -v"
 
 # Build System
 [tool.hatch.version]
