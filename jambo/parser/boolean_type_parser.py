@@ -1,4 +1,4 @@
-from jambo.types._type_parser import GenericTypeParser
+from jambo.parser._type_parser import GenericTypeParser
 
 
 class BooleanTypeParser(GenericTypeParser):

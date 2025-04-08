@@ -1,4 +1,4 @@
-from jambo.types import GenericTypeParser
+from jambo.parser import GenericTypeParser
 
 from jsonschema.exceptions import SchemaError
 from jsonschema.protocols import Validator
@@ -78,7 +78,7 @@ class SchemaConverter:
     @staticmethod
     def _build_field(
         name, properties: dict, required_keys: list[str]
-    ) -> tuple[type, Field]:
+    ) -> tuple[type, dict]:
         _field_type, _field_args = GenericTypeParser.get_impl(
             properties["type"]
         ).from_properties(name, properties)
