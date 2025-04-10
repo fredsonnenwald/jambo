@@ -1,4 +1,4 @@
-from jambo.types import (
+from jambo.parser import (
     ArrayTypeParser,
     FloatTypeParser,
     GenericTypeParser,
@@ -21,21 +21,65 @@ class TestTypeParser(unittest.TestCase):
 
     def test_int_parser(self):
         parser = IntTypeParser()
-        expected_definition = (int, {})
 
-        self.assertEqual(parser.from_properties("placeholder", {}), expected_definition)
+        type_parsing, type_validator = parser.from_properties(
+            "placeholder",
+            {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": 1,
+                "maximum": 10,
+                "exclusiveMaximum": 11,
+                "multipleOf": 2,
+            },
+        )
+
+        self.assertEqual(type_parsing, int)
+        self.assertEqual(type_validator["ge"], 0)
+        self.assertEqual(type_validator["gt"], 1)
+        self.assertEqual(type_validator["le"], 10)
+        self.assertEqual(type_validator["lt"], 11)
+        self.assertEqual(type_validator["multiple_of"], 2)
 
     def test_float_parser(self):
         parser = FloatTypeParser()
-        expected_definition = (float, {})
 
-        self.assertEqual(parser.from_properties("placeholder", {}), expected_definition)
+        type_parsing, type_validator = parser.from_properties(
+            "placeholder",
+            {
+                "type": "number",
+                "minimum": 0,
+                "exclusiveMinimum": 1,
+                "maximum": 10,
+                "exclusiveMaximum": 11,
+                "multipleOf": 2,
+            },
+        )
+
+        self.assertEqual(type_parsing, float)
+        self.assertEqual(type_validator["ge"], 0)
+        self.assertEqual(type_validator["gt"], 1)
+        self.assertEqual(type_validator["le"], 10)
+        self.assertEqual(type_validator["lt"], 11)
+        self.assertEqual(type_validator["multiple_of"], 2)
 
     def test_string_parser(self):
         parser = StringTypeParser()
-        expected_definition = (str, {})
 
-        self.assertEqual(parser.from_properties("placeholder", {}), expected_definition)
+        type_parsing, type_validator = parser.from_properties(
+            "placeholder",
+            {
+                "type": "string",
+                "maxLength": 10,
+                "minLength": 1,
+                "pattern": "[a-zA-Z0-9]",
+            },
+        )
+
+        self.assertEqual(type_parsing, str)
+        self.assertEqual(type_validator["max_length"], 10)
+        self.assertEqual(type_validator["min_length"], 1)
+        self.assertEqual(type_validator["pattern"], "[a-zA-Z0-9]")
 
     def test_object_parser(self):
         parser = ObjectTypeParser()
@@ -69,18 +113,26 @@ class TestTypeParser(unittest.TestCase):
         parser = ArrayTypeParser()
 
         properties = {
+            "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
                     "age": {"type": "integer"},
                 },
-            }
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "uniqueItems": True,
         }
 
-        _type, _args = parser.from_properties("placeholder", properties)
+        type_parsing, type_validator = parser.from_properties("placeholder", properties)
 
-        Model = get_args(_type)[0]
+        self.assertEqual(type_parsing.__origin__, set)
+        self.assertEqual(type_validator["max_length"], 10)
+        self.assertEqual(type_validator["min_length"], 1)
+
+        Model = get_args(type_parsing)[0]
         obj = Model(name="name", age=10)
 
         self.assertEqual(obj.name, "name")

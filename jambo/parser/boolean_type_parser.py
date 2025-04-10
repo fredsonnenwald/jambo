@@ -1,4 +1,4 @@
-from jambo.types._type_parser import GenericTypeParser
+from jambo.parser._type_parser import GenericTypeParser
 
 
 class BooleanTypeParser(GenericTypeParser):
@@ -8,4 +8,4 @@ class BooleanTypeParser(GenericTypeParser):
 
     @staticmethod
     def from_properties(name, properties):
-        return bool, {}
+        return bool, {}  # The second argument is not used in this case
