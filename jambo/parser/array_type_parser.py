@@ -2,6 +2,10 @@ from jambo.parser._type_parser import GenericTypeParser
 
 from typing import TypeVar
 
+from jambo.utils.properties_builder.mappings_properties_builder import (
+    mappings_properties_builder,
+)
+
 V = TypeVar("V")
 
 
@@ -16,4 +20,10 @@ class ArrayTypeParser(GenericTypeParser):
             properties["items"]["type"]
         ).from_properties(name, properties["items"])
 
-        return list[_item_type], {}
+        _mappings = {
+            "maxItems": "max_items",
+            "minItems": "min_items",
+            "uniqueItems": "unique_items",
+        }
+
+        return list[_item_type], mappings_properties_builder(properties, _mappings)

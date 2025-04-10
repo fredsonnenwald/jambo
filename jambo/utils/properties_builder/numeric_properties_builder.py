@@ -1,3 +1,8 @@
+from jambo.utils.properties_builder.mappings_properties_builder import (
+    mappings_properties_builder,
+)
+
+
 def numeric_properties_builder(properties):
     _mappings = {
         "minimum": "ge",
@@ -7,8 +12,4 @@ def numeric_properties_builder(properties):
         "multipleOf": "multiple_of",
     }
 
-    return {
-        _mappings[key]: value
-        for key, value in properties.items()
-        if key in _mappings
-    }
+    return mappings_properties_builder(properties, _mappings)

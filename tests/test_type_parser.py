@@ -23,14 +23,15 @@ class TestTypeParser(unittest.TestCase):
         parser = IntTypeParser()
 
         type_parsing, type_validator = parser.from_properties(
-            "placeholder", {
+            "placeholder",
+            {
                 "type": "integer",
                 "minimum": 0,
                 "exclusiveMinimum": 1,
                 "maximum": 10,
                 "exclusiveMaximum": 11,
                 "multipleOf": 2,
-            }
+            },
         )
 
         self.assertEqual(type_parsing, int)
@@ -44,14 +45,15 @@ class TestTypeParser(unittest.TestCase):
         parser = FloatTypeParser()
 
         type_parsing, type_validator = parser.from_properties(
-            "placeholder", {
+            "placeholder",
+            {
                 "type": "number",
                 "minimum": 0,
                 "exclusiveMinimum": 1,
                 "maximum": 10,
                 "exclusiveMaximum": 11,
                 "multipleOf": 2,
-            }
+            },
         )
 
         self.assertEqual(type_parsing, float)
@@ -65,12 +67,13 @@ class TestTypeParser(unittest.TestCase):
         parser = StringTypeParser()
 
         type_parsing, type_validator = parser.from_properties(
-            "placeholder", {
+            "placeholder",
+            {
                 "type": "string",
                 "maxLength": 10,
                 "minLength": 1,
                 "pattern": "[a-zA-Z0-9]",
-            }
+            },
         )
 
         self.assertEqual(type_parsing, str)
@@ -110,19 +113,27 @@ class TestTypeParser(unittest.TestCase):
         parser = ArrayTypeParser()
 
         properties = {
+            "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
                     "age": {"type": "integer"},
                 },
-            }
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "uniqueItems": True,
         }
 
-        _type, _args = parser.from_properties("placeholder", properties)
+        type_parsing, type_validator = parser.from_properties("placeholder", properties)
 
-        Model = get_args(_type)[0]
+        Model = get_args(type_parsing)[0]
         obj = Model(name="name", age=10)
 
         self.assertEqual(obj.name, "name")
         self.assertEqual(obj.age, 10)
+
+        self.assertEqual(type_validator["max_items"], 10)
+        self.assertEqual(type_validator["min_items"], 1)
+        self.assertEqual(type_validator["unique_items"], True)

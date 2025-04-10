@@ -10,5 +10,7 @@ class ObjectTypeParser(GenericTypeParser):
     def from_properties(name, properties):
         from jambo.schema_converter import SchemaConverter
 
-        _type = SchemaConverter.build_object(name, properties)
-        return _type, {}
+        return (
+            SchemaConverter.build_object(name, properties),
+            {},  # The second argument is not used in this case
+        )

@@ -8,4 +8,4 @@ class BooleanTypeParser(GenericTypeParser):
 
     @staticmethod
     def from_properties(name, properties):
-        return bool, {}
+        return bool, {}  # The second argument is not used in this case
