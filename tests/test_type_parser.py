@@ -128,12 +128,12 @@ class TestTypeParser(unittest.TestCase):
 
         type_parsing, type_validator = parser.from_properties("placeholder", properties)
 
+        self.assertEqual(type_parsing.__origin__, set)
+        self.assertEqual(type_validator["max_length"], 10)
+        self.assertEqual(type_validator["min_length"], 1)
+
         Model = get_args(type_parsing)[0]
         obj = Model(name="name", age=10)
 
         self.assertEqual(obj.name, "name")
         self.assertEqual(obj.age, 10)
-
-        self.assertEqual(type_validator["max_items"], 10)
-        self.assertEqual(type_validator["min_items"], 1)
-        self.assertEqual(type_validator["unique_items"], True)
