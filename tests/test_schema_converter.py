@@ -32,7 +32,13 @@ class TestSchemaConverter(TestCase):
             "description": "A person",
             "type": "object",
             "properties": {
-                "name": {"type": "string"},
+                "name": {"type": "string", "maxLength": 4, "minLength": 1},
+                "email": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 5,
+                    "pattern": r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
+                },
             },
             "required": ["name"],
         }
@@ -41,13 +47,29 @@ class TestSchemaConverter(TestCase):
 
         self.assertEqual(model(name="John", age=30).name, "John")
 
+        with self.assertRaises(ValueError):
+            model(name=123, age=30, email="teste@hideyoshi.com")
+
+        with self.assertRaises(ValueError):
+            model(name="John Invalid", age=45, email="teste@hideyoshi.com")
+
+        with self.assertRaises(ValueError):
+            model(name="", age=45, email="teste@hideyoshi.com")
+
+        with self.assertRaises(ValueError):
+            model(name="John", age=45, email="hideyoshi.com")
+
     def test_validation_integer(self):
         schema = {
             "title": "Person",
             "description": "A person",
             "type": "object",
             "properties": {
-                "age": {"type": "integer"},
+                "age": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 120,
+                },
             },
             "required": ["age"],
         }
@@ -56,7 +78,11 @@ class TestSchemaConverter(TestCase):
 
         self.assertEqual(model(age=30).age, 30)
 
-        self.assertEqual(model(age="30").age, 30)
+        with self.assertRaises(ValueError):
+            model(age=-1)
+
+        with self.assertRaises(ValueError):
+            model(age=121)
 
     def test_validation_float(self):
         schema = {
@@ -64,7 +90,11 @@ class TestSchemaConverter(TestCase):
             "description": "A person",
             "type": "object",
             "properties": {
-                "age": {"type": "number"},
+                "age": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 120,
+                },
             },
             "required": ["age"],
         }
@@ -73,7 +103,11 @@ class TestSchemaConverter(TestCase):
 
         self.assertEqual(model(age=30).age, 30.0)
 
-        self.assertEqual(model(age="30").age, 30.0)
+        with self.assertRaises(ValueError):
+            model(age=-1.0)
+
+        with self.assertRaises(ValueError):
+            model(age=121.0)
 
     def test_validation_boolean(self):
         schema = {
@@ -98,14 +132,28 @@ class TestSchemaConverter(TestCase):
             "description": "A person",
             "type": "object",
             "properties": {
-                "friends": {"type": "array", "items": {"type": "string"}},
+                "friends": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "minItems": 1,
+                    "maxItems": 2,
+                    "uniqueItems": True,
+                },
             },
             "required": ["friends"],
         }
 
         model = SchemaConverter.build(schema)
 
-        self.assertEqual(model(friends=["John", "Jane"]).friends, ["John", "Jane"])
+        self.assertEqual(
+            model(friends=["John", "Jane", "John"]).friends, {"John", "Jane"}
+        )
+
+        with self.assertRaises(ValueError):
+            model(friends=[])
+
+        with self.assertRaises(ValueError):
+            model(friends=["John", "Jane", "Invalid"])
 
     def test_validation_object(self):
         schema = {

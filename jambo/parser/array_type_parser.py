@@ -21,9 +21,12 @@ class ArrayTypeParser(GenericTypeParser):
         ).from_properties(name, properties["items"])
 
         _mappings = {
-            "maxItems": "max_items",
-            "minItems": "min_items",
-            "uniqueItems": "unique_items",
+            "maxItems": "max_length",
+            "minItems": "min_length",
         }
 
-        return list[_item_type], mappings_properties_builder(properties, _mappings)
+        wrapper_type = set if properties.get("uniqueItems", False) else list
+
+        return wrapper_type[_item_type], mappings_properties_builder(
+            properties, _mappings
+        )
