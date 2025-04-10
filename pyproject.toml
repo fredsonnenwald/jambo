@@ -3,6 +3,7 @@ name = "jambo"
 dynamic = ["version"]
 description = "Add your description here"
 requires-python = ">=3.10,<4.0"
+readme = "README.md"
 
 # Project Dependencies
 dependencies = [

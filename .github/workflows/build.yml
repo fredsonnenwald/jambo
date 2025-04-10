@@ -59,8 +59,8 @@ jobs:
       - name: Set up Python
         run: uv python install
 
-      - name: Build
-        run: uv build
+      - name: Build source distribution
+        run: uv build --sdist
 
       - name: Publish
         run: uv publish -t ${{ secrets.PYPI_TOKEN }}
