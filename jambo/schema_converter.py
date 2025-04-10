@@ -7,6 +7,8 @@ from pydantic.fields import Field
 
 from typing import Type
 
+from jambo.types.json_schema_type import JSONSchema
+
 
 class SchemaConverter:
     """
@@ -18,7 +20,7 @@ class SchemaConverter:
     """
 
     @staticmethod
-    def build(schema: dict) -> Type:
+    def build(schema: JSONSchema) -> Type:
         """
         Converts a JSON Schema to a Pydantic model.
         :param schema: The JSON Schema to convert.
@@ -32,7 +34,7 @@ class SchemaConverter:
     @staticmethod
     def build_object(
         name: str,
-        schema: dict,
+        schema: JSONSchema,
     ) -> Type:
         """
         Converts a JSON Schema object to a Pydantic model given a name.
