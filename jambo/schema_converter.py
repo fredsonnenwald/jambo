@@ -90,5 +90,10 @@ class SchemaConverter:
         if description := properties.get("description"):
             _field_args["description"] = description
 
-        _default_value = ... if name in required_keys else None
-        return _field_type, Field(_default_value, **_field_args)
+        if name not in required_keys:
+            _field_args["default"] = properties.get("default", None)
+
+        if "default_factory" in _field_args and "default" in _field_args:
+            del _field_args["default"]
+
+        return _field_type, Field(**_field_args)
