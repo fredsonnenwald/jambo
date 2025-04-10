@@ -180,16 +180,15 @@ class TestSchemaConverter(TestCase):
         self.assertEqual(obj.address.street, "123 Main St")
         self.assertEqual(obj.address.city, "Springfield")
 
-    def test_default(self):
+    def test_default_for_string(self):
         schema = {
             "title": "Person",
             "description": "A person",
             "type": "object",
             "properties": {
-                "name": {"type": "string"},
-                "age": {
-                    "type": "integer",
-                    "default": 30,
+                "name": {
+                    "type": "string",
+                    "default": "John",
                 },
             },
             "required": ["name"],
@@ -200,4 +199,60 @@ class TestSchemaConverter(TestCase):
         obj = model(name="John")
 
         self.assertEqual(obj.name, "John")
-        self.assertEqual(obj.age, 30)
+
+        # Test for default with maxLength
+        schema_max_length = {
+            "title": "Person",
+            "description": "A person",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "default": "John",
+                    "maxLength": 2,
+                },
+            },
+            "required": ["name"],
+        }
+
+        with self.assertRaises(ValueError):
+            SchemaConverter.build(schema_max_length)
+
+    def test_default_for_list(self):
+        schema_list = {
+            "title": "Person",
+            "description": "A person",
+            "type": "object",
+            "properties": {
+                "friends": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "default": ["John", "Jane"],
+                },
+            },
+            "required": ["friends"],
+        }
+
+        model_list = SchemaConverter.build(schema_list)
+
+        self.assertEqual(model_list().friends, ["John", "Jane"])
+
+        # Test for default with uniqueItems
+        schema_set = {
+            "title": "Person",
+            "description": "A person",
+            "type": "object",
+            "properties": {
+                "friends": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "default": ["John", "Jane"],
+                    "uniqueItems": True,
+                },
+            },
+            "required": ["friends"],
+        }
+
+        model_set = SchemaConverter.build(schema_set)
+
+        self.assertEqual(model_set().friends, {"John", "Jane"})
