@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Self, TypeVar
+from typing import Generic, TypeVar
+from typing_extensions import Self
 
 from pydantic import Field
 
