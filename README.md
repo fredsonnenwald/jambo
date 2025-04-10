@@ -1,5 +1,20 @@
 # Jambo - JSON Schema to Pydantic Converter
 
+<p align="center">
+<a href="https://github.com/HideyoshiNakazone/jambo" target="_blank">
+ <img src="https://img.shields.io/github/last-commit/HideyoshiNakazone/jambo.svg">
+ <img src="https://github.com/HideyoshiNakazone/jambo/actions/workflows/build.yml/badge.svg" alt="Tests">
+</a>
+<br />
+<a href="https://pypi.org/project/jambo" target="_blank">
+    <img src="https://badge.fury.io/py/jambo.svg" alt="Package version">
+</a>
+<a href="https://github.com/HideyoshiNakazone/jambo" target="_blank">
+    <img src="https://img.shields.io/pypi/pyversions/jambo.svg" alt="Python versions">
+    <img src="https://img.shields.io/github/license/HideyoshiNakazone/jambo.svg" alt="License">
+</a>
+</p>
+
 **Jambo** is a Python package that automatically converts [JSON Schema](https://json-schema.org/) definitions into [Pydantic](https://docs.pydantic.dev/) models. 
 It's designed to streamline schema validation and enforce type safety using Pydantic's powerful validation features.
 
