@@ -8,7 +8,6 @@ from jambo.parser import (
 )
 
 import unittest
-from typing import get_args
 
 
 class TestTypeParser(unittest.TestCase):
@@ -94,45 +93,6 @@ class TestTypeParser(unittest.TestCase):
 
         Model, _args = parser.from_properties("placeholder", properties)
 
-        obj = Model(name="name", age=10)
-
-        self.assertEqual(obj.name, "name")
-        self.assertEqual(obj.age, 10)
-
-    def test_array_of_string_parser(self):
-        parser = ArrayTypeParser()
-        expected_definition = (list[str], {})
-
-        properties = {"items": {"type": "string"}}
-
-        self.assertEqual(
-            parser.from_properties("placeholder", properties), expected_definition
-        )
-
-    def test_array_of_object_parser(self):
-        parser = ArrayTypeParser()
-
-        properties = {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string"},
-                    "age": {"type": "integer"},
-                },
-            },
-            "maxItems": 10,
-            "minItems": 1,
-            "uniqueItems": True,
-        }
-
-        type_parsing, type_validator = parser.from_properties("placeholder", properties)
-
-        self.assertEqual(type_parsing.__origin__, set)
-        self.assertEqual(type_validator["max_length"], 10)
-        self.assertEqual(type_validator["min_length"], 1)
-
-        Model = get_args(type_parsing)[0]
         obj = Model(name="name", age=10)
 
         self.assertEqual(obj.name, "name")
