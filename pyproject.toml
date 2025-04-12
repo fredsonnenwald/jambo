@@ -1,7 +1,7 @@
 [project]
 name = "jambo"
 dynamic = ["version"]
-description = "Add your description here"
+description = "Jambo - JSON Schema to Pydantic Converter"
 requires-python = ">=3.10,<4.0"
 maintainers = [
     { name = "Vitor Hideyoshi", email = "vitor.h.n.batista@gmail.com" },
