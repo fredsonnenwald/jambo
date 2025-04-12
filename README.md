@@ -5,6 +5,9 @@
  <img src="https://img.shields.io/github/last-commit/HideyoshiNakazone/jambo.svg">
  <img src="https://github.com/HideyoshiNakazone/jambo/actions/workflows/build.yml/badge.svg" alt="Tests">
 </a>
+<a href="https://codecov.io/gh/HideyoshiNakazone/jambo" target="_blank">
+    <img src="https://codecov.io/gh/HideyoshiNakazone/jambo/branch/main/graph/badge.svg" alt="Coverage">
+</a>
 <br />
 <a href="https://pypi.org/project/jambo" target="_blank">
     <img src="https://badge.fury.io/py/jambo.svg" alt="Package version">
