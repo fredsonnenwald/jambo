@@ -32,6 +32,8 @@ dev = [
     "coverage>=7.8.0",
     "poethepoet>=0.33.1",
     "pre-commit>=4.2.0",
+    "pytest>=8.3.5",
+    "pytest-cov>=6.1.1",
     "ruff>=0.11.4",
 ]
 
@@ -44,7 +46,7 @@ repository = "https://github.com/HideyoshiNakazone/jambo.git"
 # POE Tasks
 [tool.poe.tasks]
 create-hooks        = "bash .githooks/set-hooks.sh"
-tests               = "python -m unittest discover -s tests -v"
+tests               = "pytest -v --cov --cov-branch --cov-report=xml"
 
 # Build System
 [tool.hatch.version]
