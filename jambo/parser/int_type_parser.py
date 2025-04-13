@@ -1,5 +1,7 @@
 from jambo.parser._type_parser import GenericTypeParser
-from jambo.utils.properties_builder.numeric_properties_builder import numeric_properties_builder
+from jambo.utils.properties_builder.numeric_properties_builder import (
+    numeric_properties_builder,
+)
 
 
 class IntTypeParser(GenericTypeParser):
