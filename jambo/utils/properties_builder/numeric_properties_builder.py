@@ -22,22 +22,22 @@ def numeric_properties_builder(properties):
                 f"Default value must be a number, got {type(default_value).__name__}"
             )
 
-        if default_value >= properties.get("maximum", float("inf")):
+        if default_value > properties.get("maximum", float("inf")):
             raise ValueError(
                 f"Default value exceeds maximum limit of {properties.get('maximum')}"
             )
 
-        if default_value <= properties.get("minimum", float("-inf")):
+        if default_value < properties.get("minimum", float("-inf")):
             raise ValueError(
                 f"Default value is below minimum limit of {properties.get('minimum')}"
             )
 
-        if default_value > properties.get("exclusiveMaximum", float("inf")):
+        if default_value >= properties.get("exclusiveMaximum", float("inf")):
             raise ValueError(
                 f"Default value exceeds exclusive maximum limit of {properties.get('exclusiveMaximum')}"
             )
 
-        if default_value < properties.get("exclusiveMinimum", float("-inf")):
+        if default_value <= properties.get("exclusiveMinimum", float("-inf")):
             raise ValueError(
                 f"Default value is below exclusive minimum limit of {properties.get('exclusiveMinimum')}"
             )
