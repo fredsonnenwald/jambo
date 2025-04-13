@@ -66,3 +66,4 @@ section-order=[
     "third-party",
     "standard-library",
 ]
+lines-after-imports = 2

@@ -10,10 +10,12 @@ class ObjectTypeParser(GenericTypeParser):
     def from_properties(name, properties):
         from jambo.schema_converter import SchemaConverter
 
-        if "default" in properties:
-            raise RuntimeError("Default values for objects are not supported.")
+        type_parsing = SchemaConverter.build_object(name, properties)
+        type_properties = {}
 
-        return (
-            SchemaConverter.build_object(name, properties),
-            {},  # The second argument is not used in this case
-        )
+        if "default" in properties:
+            type_properties["default_factory"] = lambda: type_parsing.model_validate(
+                properties["default"]
+            )
+
+        return type_parsing, type_properties

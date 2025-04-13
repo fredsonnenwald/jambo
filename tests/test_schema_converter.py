@@ -256,3 +256,28 @@ class TestSchemaConverter(TestCase):
         model_set = SchemaConverter.build(schema_set)
 
         self.assertEqual(model_set().friends, {"John", "Jane"})
+
+    def test_default_for_object(self):
+        schema = {
+            "title": "Person",
+            "description": "A person",
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "object",
+                    "properties": {
+                        "street": {"type": "string"},
+                        "city": {"type": "string"},
+                    },
+                    "default": {"street": "123 Main St", "city": "Springfield"},
+                },
+            },
+            "required": ["address"],
+        }
+
+        model = SchemaConverter.build(schema)
+
+        obj = model(address={"street": "123 Main St", "city": "Springfield"})
+
+        self.assertEqual(obj.address.street, "123 Main St")
+        self.assertEqual(obj.address.city, "Springfield")

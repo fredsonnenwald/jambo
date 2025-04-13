@@ -1,13 +1,11 @@
 from jambo.parser import GenericTypeParser
+from jambo.types.json_schema_type import JSONSchema
 
 from jsonschema.exceptions import SchemaError
 from jsonschema.protocols import Validator
 from pydantic import create_model
 from pydantic.fields import Field
-
-from typing import Type
-
-from jambo.types.json_schema_type import JSONSchema
+from pydantic.main import ModelT
 
 
 class SchemaConverter:
@@ -20,7 +18,7 @@ class SchemaConverter:
     """
 
     @staticmethod
-    def build(schema: JSONSchema) -> Type:
+    def build(schema: JSONSchema) -> ModelT:
         """
         Converts a JSON Schema to a Pydantic model.
         :param schema: The JSON Schema to convert.
@@ -35,7 +33,7 @@ class SchemaConverter:
     def build_object(
         name: str,
         schema: JSONSchema,
-    ) -> Type:
+    ) -> ModelT:
         """
         Converts a JSON Schema object to a Pydantic model given a name.
         :param name:
@@ -60,7 +58,7 @@ class SchemaConverter:
     @staticmethod
     def _build_model_from_properties(
         model_name: str, model_properties: dict, required_keys: list[str]
-    ) -> Type:
+    ) -> ModelT:
         properties = SchemaConverter._parse_properties(model_properties, required_keys)
 
         return create_model(model_name, **properties)
