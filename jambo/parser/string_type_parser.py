@@ -24,7 +24,7 @@ class StringTypeParser(GenericTypeParser):
             if not isinstance(default_value, str):
                 raise ValueError(
                     f"Default value for {name} must be a string, "
-                    f"but got {type(properties['default'])}."
+                    f"but got <{type(properties['default']).__name__}>."
                 )
 
             if len(default_value) > properties.get("maxLength", float("inf")):

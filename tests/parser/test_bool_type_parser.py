@@ -1,0 +1,28 @@
+from unittest import TestCase
+
+from jambo.parser import BooleanTypeParser
+
+
+class TestBoolTypeParser(TestCase):
+    def test_bool_parser_no_options(self):
+        parser = BooleanTypeParser()
+
+        properties = {"type": "boolean"}
+
+        type_parsing, type_validator = parser.from_properties("placeholder", properties)
+
+        self.assertEqual(type_parsing, bool)
+        self.assertEqual(type_validator, {})
+
+    def test_bool_parser_with_default(self):
+        parser = BooleanTypeParser()
+
+        properties = {
+            "type": "boolean",
+            "default": True,
+        }
+
+        type_parsing, type_validator = parser.from_properties("placeholder", properties)
+
+        self.assertEqual(type_parsing, bool)
+        self.assertEqual(type_validator["default"], True)
