@@ -79,8 +79,20 @@ class SchemaConverter:
     def _build_field(
         name, properties: dict, required_keys: list[str]
     ) -> tuple[type, dict]:
+        match properties:
+            case {"anyOf": _}:
+                _field_type = "anyOf"
+            case {"allOf": _}:
+                _field_type = "allOf"
+            case {"oneOf": _}:
+                _field_type = "oneOf"
+            case {"type": _}:
+                _field_type = properties["type"]
+            case _:
+                raise ValueError(f"Invalid JSON Schema: {properties}")
+
         _field_type, _field_args = GenericTypeParser.get_impl(
-            properties["type"]
+            _field_type
         ).from_properties(name, properties)
 
         _field_args = _field_args or {}

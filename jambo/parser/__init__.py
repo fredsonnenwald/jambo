@@ -8,3 +8,4 @@ from .string_type_parser import StringTypeParser as StringTypeParser
 from .array_type_parser import ArrayTypeParser as ArrayTypeParser
 from .boolean_type_parser import BooleanTypeParser as BooleanTypeParser
 from .float_type_parser import FloatTypeParser as FloatTypeParser
+from .allof_type_parser import AllOfTypeParser as AllOfTypeParser

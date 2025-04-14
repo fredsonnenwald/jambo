@@ -281,3 +281,33 @@ class TestSchemaConverter(TestCase):
 
         self.assertEqual(obj.address.street, "123 Main St")
         self.assertEqual(obj.address.city, "Springfield")
+
+    def test_all_of(self):
+        schema = {
+            "title": "Person",
+            "description": "A person",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "allOf": [
+                        {"type": "string", "maxLength": 4},
+                        {"type": "string", "minLength": 1},
+                        {"type": "string", "minLength": 2},
+                    ]
+                },
+            },
+        }
+
+        Model = SchemaConverter.build(schema)
+
+        obj = Model(
+            name="J",
+        )
+
+        self.assertEqual(obj.name, "J")
+
+        with self.assertRaises(ValueError):
+            Model(name="John Invalid")
+
+        with self.assertRaises(ValueError):
+            Model(name="")
