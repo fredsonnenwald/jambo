@@ -290,6 +290,7 @@ class TestSchemaConverter(TestCase):
             "properties": {
                 "name": {
                     "allOf": [
+                        {"type": "string", "maxLength": 11},
                         {"type": "string", "maxLength": 4},
                         {"type": "string", "minLength": 1},
                         {"type": "string", "minLength": 2},

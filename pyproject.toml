@@ -58,7 +58,11 @@ build-backend = "hatchling.build"
 
 
 # Linters
+[tool.ruff]
+extend-select = ["I"]
+
 [tool.ruff.lint.isort]
+known-first-party = ["jambo"]
 section-order=[
     "future",
     "first-party",

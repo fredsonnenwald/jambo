@@ -16,11 +16,17 @@ class AllOfTypeParser(GenericTypeParser):
         if _mapped_type is None:
             _mapped_type = subProperties[0].get("type")
 
-            if _mapped_type is None:
-                raise ValueError("Invalid JSON Schema: 'type' is not specified.")
+        if _mapped_type is None:
+            raise ValueError("Invalid JSON Schema: 'type' is not specified.")
 
-            if not all(prop.get("type") == _mapped_type for prop in subProperties):
-                raise ValueError("Invalid JSON Schema: allOf types do not match.")
+        if any(
+            [prop.get("type", _mapped_type) != _mapped_type for prop in subProperties]
+        ):
+            raise ValueError("Invalid JSON Schema: allOf types do not match.")
+
+        for subProperty in subProperties:
+            # If a sub-property has not defined a type, we need to set it to the top-level type
+            subProperty["type"] = _mapped_type
 
         combined_properties = AllOfTypeParser._rebuild_properties_from_subproperties(
             subProperties
@@ -46,13 +52,6 @@ class AllOfTypeParser(GenericTypeParser):
 
     @staticmethod
     def _validate_prop(prop_name, old_value, new_value):
-        if prop_name == "type":
-            if old_value != new_value:
-                raise ValueError(
-                    f"Invalid JSON Schema: conflicting types for '{prop_name}'"
-                )
-            return old_value
-
         if prop_name == "description":
             return f"{old_value} | {new_value}"
 
@@ -71,6 +70,21 @@ class AllOfTypeParser(GenericTypeParser):
 
         if prop_name in ("minLength", "minimum", "exclusiveMinimum"):
             return old_value if old_value < new_value else new_value
+
+        if prop_name == "properties":
+            for key, value in new_value.items():
+                if key not in old_value:
+                    old_value[key] = value
+                    continue
+
+                for sub_key, sub_value in value.items():
+                    if sub_key not in old_value[key]:
+                        old_value[key][sub_key] = sub_value
+                    else:
+                        # Merge properties if they exist in both sub-properties
+                        old_value[key][sub_key] = AllOfTypeParser._validate_prop(
+                            sub_key, old_value[key][sub_key], sub_value
+                        )
 
         # Handle other properties by just returning the first valued
         return old_value
