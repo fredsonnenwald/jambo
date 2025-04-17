@@ -243,10 +243,14 @@ class TestAllOfTypeParser(TestCase):
                 },
                 {
                     "properties": {
+                        "name": {
+                            "type": "string",
+                            "default": "John",
+                        },
                         "age": {
                             "type": "integer",
                             "default": 30,
-                        }
+                        },
                     },
                 },
             ],
