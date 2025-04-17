@@ -1,6 +1,7 @@
 # Exports generic type parser
 from ._type_parser import GenericTypeParser as GenericTypeParser
 from .allof_type_parser import AllOfTypeParser as AllOfTypeParser
+from .anyof_type_parser import AnyOfTypeParser as AnyOfTypeParser
 from .array_type_parser import ArrayTypeParser as ArrayTypeParser
 from .boolean_type_parser import BooleanTypeParser as BooleanTypeParser
 from .float_type_parser import FloatTypeParser as FloatTypeParser

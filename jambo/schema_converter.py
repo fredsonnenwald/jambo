@@ -84,8 +84,6 @@ class SchemaConverter:
                 _field_type = "anyOf"
             case {"allOf": _}:
                 _field_type = "allOf"
-            case {"oneOf": _}:
-                _field_type = "oneOf"
             case {"type": _}:
                 _field_type = properties["type"]
             case _:
