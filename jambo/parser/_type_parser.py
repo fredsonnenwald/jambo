@@ -1,8 +1,9 @@
-from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from pydantic import Field
 from typing_extensions import Self
 
-from pydantic import Field
+from abc import ABC, abstractmethod
+from typing import Generic, TypeVar
+
 
 T = TypeVar("T")
 

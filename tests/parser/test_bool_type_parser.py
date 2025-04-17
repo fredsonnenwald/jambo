@@ -1,6 +1,6 @@
-from unittest import TestCase
-
 from jambo.parser import BooleanTypeParser
+
+from unittest import TestCase
 
 
 class TestBoolTypeParser(TestCase):

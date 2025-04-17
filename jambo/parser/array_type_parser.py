@@ -1,12 +1,11 @@
-import copy
-
 from jambo.parser._type_parser import GenericTypeParser
-
-from typing import TypeVar
-
 from jambo.utils.properties_builder.mappings_properties_builder import (
     mappings_properties_builder,
 )
+
+import copy
+from typing import TypeVar
+
 
 V = TypeVar("V")
 
