@@ -1,12 +1,25 @@
 # Exports generic type parser
-from ._type_parser import GenericTypeParser as GenericTypeParser
-from .allof_type_parser import AllOfTypeParser as AllOfTypeParser
-from .anyof_type_parser import AnyOfTypeParser as AnyOfTypeParser
-from .array_type_parser import ArrayTypeParser as ArrayTypeParser
-from .boolean_type_parser import BooleanTypeParser as BooleanTypeParser
-from .float_type_parser import FloatTypeParser as FloatTypeParser
+from ._type_parser import GenericTypeParser
 
 # Exports Implementations
-from .int_type_parser import IntTypeParser as IntTypeParser
-from .object_type_parser import ObjectTypeParser as ObjectTypeParser
-from .string_type_parser import StringTypeParser as StringTypeParser
+from .allof_type_parser import AllOfTypeParser
+from .anyof_type_parser import AnyOfTypeParser
+from .array_type_parser import ArrayTypeParser
+from .boolean_type_parser import BooleanTypeParser
+from .float_type_parser import FloatTypeParser
+from .int_type_parser import IntTypeParser
+from .object_type_parser import ObjectTypeParser
+from .string_type_parser import StringTypeParser
+
+
+__all__ = [
+    "GenericTypeParser",
+    "AllOfTypeParser",
+    "AnyOfTypeParser",
+    "ArrayTypeParser",
+    "BooleanTypeParser",
+    "FloatTypeParser",
+    "IntTypeParser",
+    "ObjectTypeParser",
+    "StringTypeParser",
+]
