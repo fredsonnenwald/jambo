@@ -2,7 +2,7 @@ from jambo.parser import GenericTypeParser
 from jambo.types.json_schema_type import JSONSchema
 
 from jsonschema.exceptions import SchemaError
-from jsonschema.protocols import Validator
+from jsonschema.validators import validator_for
 from pydantic import create_model
 from pydantic.fields import Field
 from pydantic.main import ModelT
@@ -42,7 +42,8 @@ class SchemaConverter:
         """
 
         try:
-            Validator.check_schema(schema)
+            validator = validator_for(schema)
+            validator.check_schema(schema)
         except SchemaError as e:
             raise ValueError(f"Invalid JSON Schema: {e}")
 

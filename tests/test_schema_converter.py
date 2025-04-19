@@ -10,6 +10,59 @@ def is_pydantic_model(cls):
 
 
 class TestSchemaConverter(TestCase):
+    def test_build_expects_title(self):
+        schema = {
+            "description": "A person",
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "age": {"type": "integer"},
+            },
+        }
+
+        with self.assertRaises(ValueError):
+            SchemaConverter.build(schema)
+
+    def test_build_expects_valid_schema(self):
+        invalid_schema = {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "strng"
+                }  # typo: "strng" is not a valid JSON Schema type
+            },
+            "required": ["name"],
+        }
+
+        with self.assertRaises(ValueError):
+            SchemaConverter.build_object("placeholder", invalid_schema)
+
+    def test_build_expects_object(self):
+        schema = {
+            "title": "Person",
+            "description": "A person",
+            "type": "string",
+        }
+
+        with self.assertRaises(TypeError):
+            SchemaConverter.build(schema)
+
+    def test_is_invalid_field(self):
+        schema = {
+            "title": "Person",
+            "description": "A person",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "notType": "string",
+                }
+            },
+            # 'required': ['name', 'age', 'is_active', 'friends', 'address'],
+        }
+
+        with self.assertRaises(ValueError):
+            SchemaConverter.build(schema)
+
     def test_jsonschema_to_pydantic(self):
         schema = {
             "title": "Person",
@@ -312,3 +365,35 @@ class TestSchemaConverter(TestCase):
 
         with self.assertRaises(ValueError):
             Model(name="")
+
+    def test_any_of(self):
+        schema = {
+            "title": "Person",
+            "description": "A person",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "anyOf": [
+                        {"type": "string", "maxLength": 11, "minLength": 1},
+                        {"type": "integer", "maximum": 10},
+                    ]
+                },
+            },
+        }
+
+        Model = SchemaConverter.build(schema)
+
+        obj = Model(id=1)
+        self.assertEqual(obj.id, 1)
+
+        obj = Model(id="12345678901")
+        self.assertEqual(obj.id, "12345678901")
+
+        with self.assertRaises(ValueError):
+            Model(id="")
+
+        with self.assertRaises(ValueError):
+            Model(id="12345678901234567890")
+
+        with self.assertRaises(ValueError):
+            Model(id=11)
