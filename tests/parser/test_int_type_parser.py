@@ -1,6 +1,6 @@
-from unittest import TestCase
-
 from jambo.parser import IntTypeParser
+
+from unittest import TestCase
 
 
 class TestIntTypeParser(TestCase):
@@ -12,7 +12,7 @@ class TestIntTypeParser(TestCase):
         type_parsing, type_validator = parser.from_properties("placeholder", properties)
 
         self.assertEqual(type_parsing, int)
-        self.assertEqual(type_validator, {})
+        self.assertEqual(type_validator, {"default": None})
 
     def test_int_parser_with_options(self):
         parser = IntTypeParser()
@@ -61,13 +61,8 @@ class TestIntTypeParser(TestCase):
             "multipleOf": 2,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value must be a number, got str",
-        )
 
     def test_int_parser_with_default_invalid_maximum(self):
         parser = IntTypeParser()
@@ -80,13 +75,8 @@ class TestIntTypeParser(TestCase):
             "multipleOf": 2,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value exceeds maximum limit of 10",
-        )
 
     def test_int_parser_with_default_invalid_minimum(self):
         parser = IntTypeParser()
@@ -99,13 +89,8 @@ class TestIntTypeParser(TestCase):
             "multipleOf": 2,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value is below minimum limit of 1",
-        )
 
     def test_int_parser_with_default_invalid_exclusive_maximum(self):
         parser = IntTypeParser()
@@ -118,13 +103,8 @@ class TestIntTypeParser(TestCase):
             "multipleOf": 2,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value exceeds exclusive maximum limit of 10",
-        )
 
     def test_int_parser_with_default_invalid_exclusive_minimum(self):
         parser = IntTypeParser()
@@ -137,13 +117,8 @@ class TestIntTypeParser(TestCase):
             "multipleOf": 2,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value is below exclusive minimum limit of 1",
-        )
 
     def test_int_parser_with_default_invalid_multipleOf(self):
         parser = IntTypeParser()
@@ -156,10 +131,5 @@ class TestIntTypeParser(TestCase):
             "multipleOf": 2,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value 5 is not a multiple of 2",
-        )

@@ -1,7 +1,4 @@
 from jambo.parser._type_parser import GenericTypeParser
-from jambo.utils.properties_builder.numeric_properties_builder import (
-    numeric_properties_builder,
-)
 
 
 class IntTypeParser(GenericTypeParser):
@@ -9,6 +6,20 @@ class IntTypeParser(GenericTypeParser):
 
     json_schema_type = "integer"
 
-    @staticmethod
-    def from_properties(name, properties):
-        return int, numeric_properties_builder(properties)
+    type_mappings = {
+        "minimum": "ge",
+        "exclusiveMinimum": "gt",
+        "maximum": "le",
+        "exclusiveMaximum": "lt",
+        "multipleOf": "multiple_of",
+        "default": "default",
+    }
+
+    def from_properties(self, name, properties, required=False):
+        mapped_properties = self.mappings_properties_builder(properties, required)
+
+        default_value = mapped_properties.get("default")
+        if default_value is not None:
+            self.validate_default(int, mapped_properties, default_value)
+
+        return int, mapped_properties

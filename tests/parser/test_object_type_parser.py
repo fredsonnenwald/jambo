@@ -1,6 +1,6 @@
-from unittest import TestCase
-
 from jambo.parser import ObjectTypeParser
+
+from unittest import TestCase
 
 
 class TestObjectTypeParser(TestCase):

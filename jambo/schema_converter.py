@@ -2,7 +2,7 @@ from jambo.parser import GenericTypeParser
 from jambo.types.json_schema_type import JSONSchema
 
 from jsonschema.exceptions import SchemaError
-from jsonschema.protocols import Validator
+from jsonschema.validators import validator_for
 from pydantic import create_model
 from pydantic.fields import Field
 from pydantic.main import ModelT
@@ -42,7 +42,8 @@ class SchemaConverter:
         """
 
         try:
-            Validator.check_schema(schema)
+            validator = validator_for(schema)
+            validator.check_schema(schema)
         except SchemaError as e:
             raise ValueError(f"Invalid JSON Schema: {e}")
 
@@ -71,27 +72,25 @@ class SchemaConverter:
 
         fields = {}
         for name, prop in properties.items():
-            fields[name] = SchemaConverter._build_field(name, prop, required_keys)
+            is_required = name in required_keys
+            fields[name] = SchemaConverter._build_field(name, prop, is_required)
 
         return fields
 
     @staticmethod
-    def _build_field(
-        name, properties: dict, required_keys: list[str]
-    ) -> tuple[type, dict]:
+    def _build_field(name, properties: dict, required=False) -> tuple[type, Field]:
+        match properties:
+            case {"anyOf": _}:
+                _field_type = "anyOf"
+            case {"allOf": _}:
+                _field_type = "allOf"
+            case {"type": _}:
+                _field_type = properties["type"]
+            case _:
+                raise ValueError(f"Invalid JSON Schema: {properties}")
+
         _field_type, _field_args = GenericTypeParser.get_impl(
-            properties["type"]
-        ).from_properties(name, properties)
-
-        _field_args = _field_args or {}
-
-        if description := properties.get("description"):
-            _field_args["description"] = description
-
-        if name not in required_keys:
-            _field_args["default"] = properties.get("default", None)
-
-        if "default_factory" in _field_args and "default" in _field_args:
-            del _field_args["default"]
+            _field_type
+        ).from_properties(name, properties, required)
 
         return _field_type, Field(**_field_args)
