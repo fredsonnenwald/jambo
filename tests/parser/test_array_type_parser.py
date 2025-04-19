@@ -66,37 +66,24 @@ class TestArrayTypeParser(TestCase):
 
         properties = {"items": {"type": "string"}, "default": ["a", 1, "c"]}
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "All items in the default list must be of type str",
-        )
 
     def test_array_parser_with_invalid_default_type(self):
         parser = ArrayTypeParser()
 
         properties = {"items": {"type": "string"}, "default": "not_a_list"}
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception), "Default value must be a list, got str"
-        )
 
     def test_array_parser_with_invalid_default_min(self):
         parser = ArrayTypeParser()
 
         properties = {"items": {"type": "string"}, "default": ["a"], "minItems": 2}
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception), "Default list is below minItems limit of 2"
-        )
 
     def test_array_parser_with_invalid_default_max(self):
         parser = ArrayTypeParser()
@@ -107,9 +94,5 @@ class TestArrayTypeParser(TestCase):
             "maxItems": 3,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception), "Default list exceeds maxItems limit of 3"
-        )

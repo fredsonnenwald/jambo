@@ -50,8 +50,8 @@ class AnyOfTypeParser(GenericTypeParser):
         if not required:
             mapped_properties["default"] = mapped_properties.get("default")
 
-        # By defining the type as Union, we can use the Field validator to enforce
-        # the constraints on the union type.
+        # By defining the type as Union of Annotated type we can use the Field validator
+        # to enforce the constraints of each union type when needed.
         # We use Annotated to attach the Field validators to the type.
         field_types = [Annotated[t, Field(**v)] if v else t for t, v in sub_types]
 

@@ -27,6 +27,7 @@ class ArrayTypeParser(GenericTypeParser):
         }
 
         wrapper_type = set if properties.get("uniqueItems", False) else list
+        field_type = wrapper_type[_item_type]
 
         mapped_properties = mappings_properties_builder(
             properties,
@@ -37,25 +38,11 @@ class ArrayTypeParser(GenericTypeParser):
 
         default_list = properties.get("default")
         if default_list is not None:
-            if not isinstance(default_list, list):
-                raise ValueError(
-                    f"Default value must be a list, got {type(default_list).__name__}"
-                )
-
-            if len(default_list) > properties.get("maxItems", float("inf")):
-                raise ValueError(
-                    f"Default list exceeds maxItems limit of {properties.get('maxItems')}"
-                )
-
-            if len(default_list) < properties.get("minItems", 0):
-                raise ValueError(
-                    f"Default list is below minItems limit of {properties.get('minItems')}"
-                )
-
-            if not all(isinstance(item, _item_type) for item in default_list):
-                raise ValueError(
-                    f"All items in the default list must be of type {_item_type.__name__}"
-                )
+            ArrayTypeParser.validate_default(
+                field_type,
+                mapped_properties,
+                default_list,
+            )
 
             if wrapper_type is list:
                 mapped_properties["default_factory"] = lambda: copy.deepcopy(
@@ -69,4 +56,4 @@ class ArrayTypeParser(GenericTypeParser):
         if "default_factory" in mapped_properties and "default" in mapped_properties:
             del mapped_properties["default"]
 
-        return wrapper_type[_item_type], mapped_properties
+        return field_type, mapped_properties

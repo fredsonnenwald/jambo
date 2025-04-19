@@ -61,13 +61,8 @@ class TestFloatTypeParser(TestCase):
             "multipleOf": 0.5,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value must be a number, got str",
-        )
 
     def test_float_parser_with_default_invalid_maximum(self):
         parser = FloatTypeParser()
@@ -80,13 +75,8 @@ class TestFloatTypeParser(TestCase):
             "multipleOf": 0.5,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value exceeds maximum limit of 10.5",
-        )
 
     def test_float_parser_with_default_invalid_minimum(self):
         parser = FloatTypeParser()
@@ -99,13 +89,8 @@ class TestFloatTypeParser(TestCase):
             "multipleOf": 0.5,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value is below minimum limit of 1.0",
-        )
 
     def test_float_parser_with_default_invalid_exclusive_maximum(self):
         parser = FloatTypeParser()
@@ -118,13 +103,8 @@ class TestFloatTypeParser(TestCase):
             "multipleOf": 0.5,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value exceeds exclusive maximum limit of 10.5",
-        )
 
     def test_float_parser_with_default_invalid_exclusive_minimum(self):
         parser = FloatTypeParser()
@@ -137,13 +117,8 @@ class TestFloatTypeParser(TestCase):
             "multipleOf": 0.5,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value is below exclusive minimum limit of 1.0",
-        )
 
     def test_float_parser_with_default_invalid_multiple(self):
         parser = FloatTypeParser()
@@ -156,10 +131,5 @@ class TestFloatTypeParser(TestCase):
             "multipleOf": 2.0,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value 5.0 is not a multiple of 2.0",
-        )
