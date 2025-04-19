@@ -26,3 +26,14 @@ class TestBoolTypeParser(TestCase):
 
         self.assertEqual(type_parsing, bool)
         self.assertEqual(type_validator["default"], True)
+
+    def test_bool_parser_with_invalid_default(self):
+        parser = BooleanTypeParser()
+
+        properties = {
+            "type": "boolean",
+            "default": "invalid",
+        }
+
+        with self.assertRaises(ValueError):
+            parser.from_properties("placeholder", properties)
