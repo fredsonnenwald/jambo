@@ -77,7 +77,7 @@ class SchemaConverter:
         return fields
 
     @staticmethod
-    def _build_field(name, properties: dict, required=False) -> tuple[type, dict]:
+    def _build_field(name, properties: dict, required=False) -> tuple[type, Field]:
         match properties:
             case {"anyOf": _}:
                 _field_type = "anyOf"

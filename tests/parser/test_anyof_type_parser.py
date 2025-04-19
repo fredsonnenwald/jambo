@@ -7,6 +7,25 @@ from unittest import TestCase
 
 
 class TestAnyOfTypeParser(TestCase):
+    def test_any_with_missing_properties(self):
+        properties = {
+            "notAnyOf": [
+                {"type": "string"},
+                {"type": "integer"},
+            ],
+        }
+
+        with self.assertRaises(ValueError):
+            AnyOfTypeParser().from_properties("placeholder", properties)
+
+    def test_any_of_with_invalid_properties(self):
+        properties = {
+            "anyOf": None,
+        }
+
+        with self.assertRaises(ValueError):
+            AnyOfTypeParser().from_properties("placeholder", properties)
+
     def test_any_of_string_or_int(self):
         """
         Tests the AnyOfTypeParser with a string or int type.
@@ -61,3 +80,19 @@ class TestAnyOfTypeParser(TestCase):
         self.assertIn(int, get_args(type_2))
 
         self.assertEqual(type_validator["default"], 42)
+
+    def test_any_string_or_int_with_invalid_defaults(self):
+        """
+        Tests the AnyOfTypeParser with a string or int type and an invalid default value.
+        """
+
+        properties = {
+            "anyOf": [
+                {"type": "string"},
+                {"type": "integer"},
+            ],
+            "default": 3.14,
+        }
+
+        with self.assertRaises(ValueError):
+            AnyOfTypeParser().from_properties("placeholder", properties)
