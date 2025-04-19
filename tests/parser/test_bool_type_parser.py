@@ -12,7 +12,7 @@ class TestBoolTypeParser(TestCase):
         type_parsing, type_validator = parser.from_properties("placeholder", properties)
 
         self.assertEqual(type_parsing, bool)
-        self.assertEqual(type_validator, {})
+        self.assertEqual(type_validator, {"default": None})
 
     def test_bool_parser_with_default(self):
         parser = BooleanTypeParser()

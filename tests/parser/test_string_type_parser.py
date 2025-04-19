@@ -57,13 +57,8 @@ class TestStringTypeParser(TestCase):
             "minLength": 5,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value for placeholder must be a string, but got <int>.",
-        )
 
     def test_string_parser_with_default_invalid_maxlength(self):
         parser = StringTypeParser()
@@ -75,13 +70,8 @@ class TestStringTypeParser(TestCase):
             "minLength": 1,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value for placeholder exceeds maxLength limit of 2",
-        )
 
     def test_string_parser_with_default_invalid_minlength(self):
         parser = StringTypeParser()
@@ -93,10 +83,5 @@ class TestStringTypeParser(TestCase):
             "minLength": 2,
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)
-
-        self.assertEqual(
-            str(context.exception),
-            "Default value for placeholder is below minLength limit of 2",
-        )

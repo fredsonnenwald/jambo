@@ -10,31 +10,17 @@ class StringTypeParser(GenericTypeParser):
     json_schema_type = "string"
 
     @staticmethod
-    def from_properties(name, properties):
+    def from_properties(name, properties, required=False):
         _mappings = {
             "maxLength": "max_length",
             "minLength": "min_length",
             "pattern": "pattern",
         }
 
-        mapped_properties = mappings_properties_builder(properties, _mappings)
+        mapped_properties = mappings_properties_builder(properties, _mappings, required)
 
-        if "default" in properties:
-            default_value = properties["default"]
-            if not isinstance(default_value, str):
-                raise ValueError(
-                    f"Default value for {name} must be a string, "
-                    f"but got <{type(properties['default']).__name__}>."
-                )
-
-            if len(default_value) > properties.get("maxLength", float("inf")):
-                raise ValueError(
-                    f"Default value for {name} exceeds maxLength limit of {properties.get('maxLength')}"
-                )
-
-            if len(default_value) < properties.get("minLength", 0):
-                raise ValueError(
-                    f"Default value for {name} is below minLength limit of {properties.get('minLength')}"
-                )
+        default_value = properties.get("default")
+        if default_value is not None:
+            StringTypeParser.validate_default(str, mapped_properties, default_value)
 
         return str, mapped_properties

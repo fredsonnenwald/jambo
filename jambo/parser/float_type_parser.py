@@ -10,5 +10,5 @@ class FloatTypeParser(GenericTypeParser):
     json_schema_type = "number"
 
     @staticmethod
-    def from_properties(name, properties):
-        return float, numeric_properties_builder(properties)
+    def from_properties(name, properties, required=False):
+        return float, numeric_properties_builder(properties, required)

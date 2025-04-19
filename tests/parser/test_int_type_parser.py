@@ -12,7 +12,7 @@ class TestIntTypeParser(TestCase):
         type_parsing, type_validator = parser.from_properties("placeholder", properties)
 
         self.assertEqual(type_parsing, int)
-        self.assertEqual(type_validator, {})
+        self.assertEqual(type_validator, {"default": None})
 
     def test_int_parser_with_options(self):
         parser = IntTypeParser()

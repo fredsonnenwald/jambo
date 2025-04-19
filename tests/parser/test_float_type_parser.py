@@ -12,7 +12,7 @@ class TestFloatTypeParser(TestCase):
         type_parsing, type_validator = parser.from_properties("placeholder", properties)
 
         self.assertEqual(type_parsing, float)
-        self.assertEqual(type_validator, {})
+        self.assertEqual(type_validator, {"default": None})
 
     def test_float_parser_with_options(self):
         parser = FloatTypeParser()

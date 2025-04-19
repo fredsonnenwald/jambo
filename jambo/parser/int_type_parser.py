@@ -10,5 +10,5 @@ class IntTypeParser(GenericTypeParser):
     json_schema_type = "integer"
 
     @staticmethod
-    def from_properties(name, properties):
-        return int, numeric_properties_builder(properties)
+    def from_properties(name, properties, required=False):
+        return int, numeric_properties_builder(properties, required)

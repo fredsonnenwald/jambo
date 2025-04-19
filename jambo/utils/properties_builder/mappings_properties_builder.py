@@ -1,4 +1,9 @@
-def mappings_properties_builder(properties, mappings, default_mappings=None):
+def mappings_properties_builder(
+    properties, mappings, required=False, default_mappings=None
+):
+    if not required:
+        properties["default"] = properties.get("default", None)
+
     default_mappings = default_mappings or {
         "default": "default",
         "description": "description",

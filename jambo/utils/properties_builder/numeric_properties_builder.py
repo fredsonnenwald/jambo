@@ -3,7 +3,7 @@ from jambo.utils.properties_builder.mappings_properties_builder import (
 )
 
 
-def numeric_properties_builder(properties):
+def numeric_properties_builder(properties, required=False):
     _mappings = {
         "minimum": "ge",
         "exclusiveMinimum": "gt",
@@ -13,9 +13,10 @@ def numeric_properties_builder(properties):
         "default": "default",
     }
 
-    mapped_properties = mappings_properties_builder(properties, _mappings)
+    mapped_properties = mappings_properties_builder(properties, _mappings, required)
 
-    if "default" in properties:
+    default_value = properties.get("default")
+    if default_value is not None:
         default_value = properties["default"]
         if not isinstance(default_value, (int, float)):
             raise ValueError(

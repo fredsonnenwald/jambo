@@ -71,14 +71,13 @@ class SchemaConverter:
 
         fields = {}
         for name, prop in properties.items():
-            fields[name] = SchemaConverter._build_field(name, prop, required_keys)
+            is_required = name in required_keys
+            fields[name] = SchemaConverter._build_field(name, prop, is_required)
 
         return fields
 
     @staticmethod
-    def _build_field(
-        name, properties: dict, required_keys: list[str]
-    ) -> tuple[type, dict]:
+    def _build_field(name, properties: dict, required=False) -> tuple[type, dict]:
         match properties:
             case {"anyOf": _}:
                 _field_type = "anyOf"
@@ -91,17 +90,6 @@ class SchemaConverter:
 
         _field_type, _field_args = GenericTypeParser.get_impl(
             _field_type
-        ).from_properties(name, properties)
-
-        _field_args = _field_args or {}
-
-        if description := properties.get("description"):
-            _field_args["description"] = description
-
-        if name not in required_keys:
-            _field_args["default"] = properties.get("default", None)
-
-        if "default_factory" in _field_args and "default" in _field_args:
-            del _field_args["default"]
+        ).from_properties(name, properties, required)
 
         return _field_type, Field(**_field_args)

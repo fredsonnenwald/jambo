@@ -15,11 +15,11 @@ class ArrayTypeParser(GenericTypeParser):
 
     json_schema_type = "array"
 
-    @classmethod
-    def from_properties(cls, name, properties):
+    @staticmethod
+    def from_properties(name, properties, required=False):
         _item_type, _item_args = GenericTypeParser.get_impl(
             properties["items"]["type"]
-        ).from_properties(name, properties["items"])
+        ).from_properties(name, properties["items"], required=True)
 
         _mappings = {
             "maxItems": "max_length",
@@ -29,11 +29,14 @@ class ArrayTypeParser(GenericTypeParser):
         wrapper_type = set if properties.get("uniqueItems", False) else list
 
         mapped_properties = mappings_properties_builder(
-            properties, _mappings, {"description": "description"}
+            properties,
+            _mappings,
+            required=required,
+            default_mappings={"description": "description"},
         )
 
-        if "default" in properties:
-            default_list = properties["default"]
+        default_list = properties.get("default")
+        if default_list is not None:
             if not isinstance(default_list, list):
                 raise ValueError(
                     f"Default value must be a list, got {type(default_list).__name__}"
@@ -62,5 +65,8 @@ class ArrayTypeParser(GenericTypeParser):
                 mapped_properties["default_factory"] = lambda: wrapper_type(
                     default_list
                 )
+
+        if "default_factory" in mapped_properties and "default" in mapped_properties:
+            del mapped_properties["default"]
 
         return wrapper_type[_item_type], mapped_properties

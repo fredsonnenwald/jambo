@@ -10,7 +10,7 @@ class BooleanTypeParser(GenericTypeParser):
     json_schema_type = "boolean"
 
     @staticmethod
-    def from_properties(name, properties):
+    def from_properties(name, properties, required=False):
         _mappings = {
             "default": "default",
         }

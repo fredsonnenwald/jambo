@@ -7,7 +7,7 @@ class AllOfTypeParser(GenericTypeParser):
     json_schema_type = "allOf"
 
     @staticmethod
-    def from_properties(name, properties):
+    def from_properties(name, properties, required=False):
         subProperties = properties.get("allOf")
         if not subProperties:
             raise ValueError("Invalid JSON Schema: 'allOf' is not specified.")
