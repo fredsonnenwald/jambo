@@ -36,7 +36,7 @@ class ArrayTypeParser(GenericTypeParser):
             default_mappings={"description": "description"},
         )
 
-        default_list = properties.get("default")
+        default_list = properties.pop("default", None)
         if default_list is not None:
             ArrayTypeParser.validate_default(
                 field_type,
@@ -52,8 +52,5 @@ class ArrayTypeParser(GenericTypeParser):
                 mapped_properties["default_factory"] = lambda: wrapper_type(
                     default_list
                 )
-
-        if "default_factory" in mapped_properties and "default" in mapped_properties:
-            del mapped_properties["default"]
 
         return field_type, mapped_properties
