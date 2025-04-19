@@ -1,7 +1,4 @@
 from jambo.parser._type_parser import GenericTypeParser
-from jambo.utils.properties_builder.mappings_properties_builder import (
-    mappings_properties_builder,
-)
 
 import copy
 from typing import TypeVar
@@ -15,30 +12,29 @@ class ArrayTypeParser(GenericTypeParser):
 
     json_schema_type = "array"
 
-    @staticmethod
-    def from_properties(name, properties, required=False):
+    default_mappings = {"description": "description"}
+
+    type_mappings = {
+        "maxItems": "max_length",
+        "minItems": "min_length",
+    }
+
+    def from_properties(self, name, properties, required=False):
         _item_type, _item_args = GenericTypeParser.get_impl(
             properties["items"]["type"]
         ).from_properties(name, properties["items"], required=True)
 
-        _mappings = {
-            "maxItems": "max_length",
-            "minItems": "min_length",
-        }
-
         wrapper_type = set if properties.get("uniqueItems", False) else list
         field_type = wrapper_type[_item_type]
 
-        mapped_properties = mappings_properties_builder(
+        mapped_properties = self.mappings_properties_builder(
             properties,
-            _mappings,
             required=required,
-            default_mappings={"description": "description"},
         )
 
         default_list = properties.pop("default", None)
         if default_list is not None:
-            ArrayTypeParser.validate_default(
+            self.validate_default(
                 field_type,
                 mapped_properties,
                 default_list,

@@ -11,8 +11,7 @@ class AnyOfTypeParser(GenericTypeParser):
 
     json_schema_type = "anyOf"
 
-    @staticmethod
-    def from_properties(name, properties, required=False):
+    def from_properties(self, name, properties, required=False):
         if "anyOf" not in properties:
             raise ValueError(f"Invalid JSON Schema: {properties}")
 
@@ -34,9 +33,7 @@ class AnyOfTypeParser(GenericTypeParser):
         if default_value is not None:
             for sub_type, sub_property in sub_types:
                 try:
-                    GenericTypeParser.validate_default(
-                        sub_type, sub_property, default_value
-                    )
+                    self.validate_default(sub_type, sub_property, default_value)
                     break
                 except ValueError:
                     continue

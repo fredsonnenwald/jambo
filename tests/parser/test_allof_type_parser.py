@@ -38,7 +38,7 @@ class TestAllOfTypeParser(TestCase):
             ],
         }
 
-        type_parsing, type_validator = AllOfTypeParser.from_properties(
+        type_parsing, type_validator = AllOfTypeParser().from_properties(
             "placeholder", properties
         )
 
@@ -83,7 +83,7 @@ class TestAllOfTypeParser(TestCase):
             ],
         }
 
-        type_parsing, type_validator = AllOfTypeParser.from_properties(
+        type_parsing, type_validator = AllOfTypeParser().from_properties(
             "placeholder", properties
         )
 
@@ -112,7 +112,7 @@ class TestAllOfTypeParser(TestCase):
             ],
         }
 
-        type_parsing, type_validator = AllOfTypeParser.from_properties(
+        type_parsing, type_validator = AllOfTypeParser().from_properties(
             "placeholder", properties
         )
 
@@ -133,7 +133,7 @@ class TestAllOfTypeParser(TestCase):
             ]
         }
 
-        type_parsing, type_validator = AllOfTypeParser.from_properties(
+        type_parsing, type_validator = AllOfTypeParser().from_properties(
             "placeholder", properties
         )
 
@@ -155,7 +155,7 @@ class TestAllOfTypeParser(TestCase):
         }
 
         with self.assertRaises(ValueError):
-            AllOfTypeParser.from_properties("placeholder", properties)
+            AllOfTypeParser().from_properties("placeholder", properties)
 
     def test_all_of_invalid_type_not_present(self):
         properties = {
@@ -168,7 +168,7 @@ class TestAllOfTypeParser(TestCase):
         }
 
         with self.assertRaises(ValueError):
-            AllOfTypeParser.from_properties("placeholder", properties)
+            AllOfTypeParser().from_properties("placeholder", properties)
 
     def test_all_of_invalid_type_in_fields(self):
         properties = {
@@ -181,7 +181,7 @@ class TestAllOfTypeParser(TestCase):
         }
 
         with self.assertRaises(ValueError):
-            AllOfTypeParser.from_properties("placeholder", properties)
+            AllOfTypeParser().from_properties("placeholder", properties)
 
     def test_all_of_description_field(self):
         """
@@ -218,7 +218,7 @@ class TestAllOfTypeParser(TestCase):
             ],
         }
 
-        type_parsing, _ = AllOfTypeParser.from_properties("placeholder", properties)
+        type_parsing, _ = AllOfTypeParser().from_properties("placeholder", properties)
 
         self.assertEqual(
             type_parsing.schema()["properties"]["name"]["description"],
@@ -256,7 +256,7 @@ class TestAllOfTypeParser(TestCase):
             ],
         }
 
-        type_parsing, _ = AllOfTypeParser.from_properties("placeholder", properties)
+        type_parsing, _ = AllOfTypeParser().from_properties("placeholder", properties)
         obj = type_parsing()
         self.assertEqual(obj.name, "John")
         self.assertEqual(obj.age, 30)
@@ -289,4 +289,4 @@ class TestAllOfTypeParser(TestCase):
         }
 
         with self.assertRaises(ValueError):
-            AllOfTypeParser.from_properties("placeholder", properties)
+            AllOfTypeParser().from_properties("placeholder", properties)

@@ -1,7 +1,4 @@
 from jambo.parser._type_parser import GenericTypeParser
-from jambo.utils.properties_builder.mappings_properties_builder import (
-    mappings_properties_builder,
-)
 
 
 class FloatTypeParser(GenericTypeParser):
@@ -9,20 +6,20 @@ class FloatTypeParser(GenericTypeParser):
 
     json_schema_type = "number"
 
-    @staticmethod
-    def from_properties(name, properties, required=False):
-        _mappings = {
-            "minimum": "ge",
-            "exclusiveMinimum": "gt",
-            "maximum": "le",
-            "exclusiveMaximum": "lt",
-            "multipleOf": "multiple_of",
-            "default": "default",
-        }
-        mapped_properties = mappings_properties_builder(properties, _mappings, required)
+    type_mappings = {
+        "minimum": "ge",
+        "exclusiveMinimum": "gt",
+        "maximum": "le",
+        "exclusiveMaximum": "lt",
+        "multipleOf": "multiple_of",
+        "default": "default",
+    }
+
+    def from_properties(self, name, properties, required=False):
+        mapped_properties = self.mappings_properties_builder(properties, required)
 
         default_value = mapped_properties.get("default")
         if default_value is not None:
-            FloatTypeParser.validate_default(float, mapped_properties, default_value)
+            self.validate_default(float, mapped_properties, default_value)
 
         return float, mapped_properties

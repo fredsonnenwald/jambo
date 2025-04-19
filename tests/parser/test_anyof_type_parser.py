@@ -19,7 +19,7 @@ class TestAnyOfTypeParser(TestCase):
             ],
         }
 
-        type_parsing, _ = AnyOfTypeParser.from_properties("placeholder", properties)
+        type_parsing, _ = AnyOfTypeParser().from_properties("placeholder", properties)
 
         # check union type has string and int
         self.assertEqual(get_origin(type_parsing), Union)
@@ -45,7 +45,7 @@ class TestAnyOfTypeParser(TestCase):
             "default": 42,
         }
 
-        type_parsing, type_validator = AnyOfTypeParser.from_properties(
+        type_parsing, type_validator = AnyOfTypeParser().from_properties(
             "placeholder", properties
         )
 
