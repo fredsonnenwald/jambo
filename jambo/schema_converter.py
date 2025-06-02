@@ -18,7 +18,7 @@ class SchemaConverter:
     """
 
     @staticmethod
-    def build(schema: JSONSchema) -> ModelT:
+    def build(schema: JSONSchema) -> type[ModelT]:
         """
         Converts a JSON Schema to a Pydantic model.
         :param schema: The JSON Schema to convert.
@@ -33,7 +33,7 @@ class SchemaConverter:
     def build_object(
         name: str,
         schema: JSONSchema,
-    ) -> ModelT:
+    ) -> type[ModelT]:
         """
         Converts a JSON Schema object to a Pydantic model given a name.
         :param name:
@@ -59,7 +59,7 @@ class SchemaConverter:
     @staticmethod
     def _build_model_from_properties(
         model_name: str, model_properties: dict, required_keys: list[str]
-    ) -> ModelT:
+    ) -> type[ModelT]:
         properties = SchemaConverter._parse_properties(model_properties, required_keys)
 
         return create_model(model_name, **properties)
