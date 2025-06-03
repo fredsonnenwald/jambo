@@ -13,6 +13,8 @@ class TestGenericTypeParser(TestCase):
                 self, name: str, properties: dict[str, any], required: bool = False
             ): ...
 
+        if hasattr(self, "InvalidGenericTypeParser"):
+            delattr(self, "InvalidGenericTypeParser")
         self.InvalidGenericTypeParser = InvalidGenericTypeParser
 
     def tearDown(self):
