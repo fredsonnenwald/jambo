@@ -183,6 +183,22 @@ class TestAllOfTypeParser(TestCase):
         with self.assertRaises(ValueError):
             AllOfTypeParser().from_properties("placeholder", properties)
 
+    def test_all_of_invalid_type_not_all_equal(self):
+        """
+        Tests that an error is raised when the allOf types are not all equal.
+        """
+
+        properties = {
+            "allOf": [
+                {"type": "string", "maxLength": 11},
+                {"type": "integer", "maxLength": 4},
+                {"type": "string", "minLength": 1},
+            ]
+        }
+
+        with self.assertRaises(ValueError):
+            AllOfTypeParser().from_properties("placeholder", properties)
+
     def test_all_of_description_field(self):
         """
         Tests the AllOfTypeParser with a description field.
