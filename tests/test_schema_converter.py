@@ -11,6 +11,20 @@ def is_pydantic_model(cls):
 
 
 class TestSchemaConverter(TestCase):
+    def test_invalid_schema(self):
+        schema = {
+            "title": 1,
+            "description": "A person",
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "age": {"type": "integer"},
+            },
+        }
+
+        with self.assertRaises(ValueError):
+            SchemaConverter.build(schema)
+
     def test_build_expects_title(self):
         schema = {
             "description": "A person",
