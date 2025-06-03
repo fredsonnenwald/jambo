@@ -1,8 +1,7 @@
 from jambo.parser.anyof_type_parser import AnyOfTypeParser
 
-from typing_extensions import Annotated
+from typing_extensions import Annotated, Union, get_args, get_origin
 
-from typing import Union, get_args, get_origin
 from unittest import TestCase
 
 

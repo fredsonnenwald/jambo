@@ -1,7 +1,8 @@
 from jambo.parser._type_parser import GenericTypeParser
 
+from typing_extensions import TypeVar
+
 import copy
-from typing import TypeVar
 
 
 V = TypeVar("V")

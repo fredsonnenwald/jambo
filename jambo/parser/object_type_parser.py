@@ -2,8 +2,7 @@ from jambo.parser._type_parser import GenericTypeParser
 
 from pydantic import Field, create_model
 from pydantic.main import ModelT
-
-from typing import Any
+from typing_extensions import Any
 
 
 class ObjectTypeParser(GenericTypeParser):

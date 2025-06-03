@@ -1,8 +1,9 @@
+from jambo.types.type_parser_options import TypeParserOptions
+
 from pydantic import Field, TypeAdapter
-from typing_extensions import Annotated, Self
+from typing_extensions import Annotated, Any, Generic, Self, TypeVar, Unpack
 
 from abc import ABC, abstractmethod
-from typing import Any, Generic, TypeVar
 
 
 T = TypeVar("T")
@@ -18,9 +19,14 @@ class GenericTypeParser(ABC, Generic[T]):
         "description": "description",
     }
 
+    @abstractmethod
+    def from_properties(
+        self, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
+    ) -> tuple[T, dict]: ...
+
     @classmethod
     def type_from_properties(
-        cls, name: str, properties: dict[str, Any], **kwargs
+        cls, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
     ) -> tuple[type, dict]:
         parser = cls._get_impl(properties)
 
@@ -51,12 +57,9 @@ class GenericTypeParser(ABC, Generic[T]):
 
         return schema_definition[0], schema_definition[1]
 
-    @abstractmethod
-    def from_properties(
-        self, name: str, properties: dict[str, Any], required: bool = False
-    ) -> tuple[T, dict]: ...
-
-    def mappings_properties_builder(self, properties, required=False) -> dict[str, Any]:
+    def mappings_properties_builder(
+        self, properties, required=False, **kwargs: Unpack[TypeParserOptions]
+    ) -> dict[str, Any]:
         if self.type_mappings is None:
             raise NotImplementedError("Type mappings not defined")
 

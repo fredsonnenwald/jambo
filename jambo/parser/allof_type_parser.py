@@ -1,6 +1,7 @@
 from jambo.parser._type_parser import GenericTypeParser
+from jambo.types.type_parser_options import TypeParserOptions
 
-from typing import Any
+from typing_extensions import Any, Unpack
 
 
 class AllOfTypeParser(GenericTypeParser):
@@ -8,7 +9,7 @@ class AllOfTypeParser(GenericTypeParser):
 
     json_schema_type = "allOf"
 
-    def from_properties(self, name, properties, required=False):
+    def from_properties(self, name, properties, **kwargs: Unpack[TypeParserOptions]):
         sub_properties = properties.get("allOf", [])
 
         root_type = properties.get("type")
@@ -22,7 +23,7 @@ class AllOfTypeParser(GenericTypeParser):
             sub_properties
         )
 
-        return parser().from_properties(name, combined_properties)
+        return parser().from_properties(name, combined_properties, **kwargs)
 
     @staticmethod
     def _get_type_parser(
