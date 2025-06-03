@@ -1,6 +1,8 @@
 from jambo.parser._type_parser import GenericTypeParser
+from jambo.types.type_parser_options import TypeParserOptions
 
 from pydantic import EmailStr, HttpUrl, IPvAnyAddress
+from typing_extensions import Unpack
 
 from datetime import date, datetime, time
 
@@ -32,8 +34,8 @@ class StringTypeParser(GenericTypeParser):
         "hostname": r"^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$",
     }
 
-    def from_properties(self, name, properties, required=False):
-        mapped_properties = self.mappings_properties_builder(properties, required)
+    def from_properties(self, name, properties, **kwargs: Unpack[TypeParserOptions]):
+        mapped_properties = self.mappings_properties_builder(properties, **kwargs)
 
         format_type = properties.get("format")
         if format_type:

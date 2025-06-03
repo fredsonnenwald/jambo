@@ -48,7 +48,9 @@ class GenericTypeParser(ABC, Generic[T]):
     @classmethod
     def _get_schema_type(cls) -> tuple[str, str | None]:
         if cls.json_schema_type is None:
-            raise RuntimeError("TypeParser: json_schema_type not defined")
+            raise RuntimeError(
+                f"TypeParser: json_schema_type not defined for subclass {cls.__name__}"
+            )
 
         schema_definition = cls.json_schema_type.split(":")
 
@@ -58,12 +60,12 @@ class GenericTypeParser(ABC, Generic[T]):
         return schema_definition[0], schema_definition[1]
 
     def mappings_properties_builder(
-        self, properties, required=False, **kwargs: Unpack[TypeParserOptions]
+        self, properties, **kwargs: Unpack[TypeParserOptions]
     ) -> dict[str, Any]:
         if self.type_mappings is None:
             raise NotImplementedError("Type mappings not defined")
 
-        if not required:
+        if not kwargs.get("required", False):
             properties["default"] = properties.get("default", None)
 
         mappings = self.default_mappings | self.type_mappings

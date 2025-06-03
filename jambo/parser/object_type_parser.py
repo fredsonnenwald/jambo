@@ -1,8 +1,9 @@
 from jambo.parser._type_parser import GenericTypeParser
+from jambo.types.type_parser_options import TypeParserOptions
 
 from pydantic import Field, create_model
 from pydantic.main import ModelT
-from typing_extensions import Any
+from typing_extensions import Any, Unpack
 
 
 class ObjectTypeParser(GenericTypeParser):
@@ -11,10 +12,13 @@ class ObjectTypeParser(GenericTypeParser):
     json_schema_type = "type:object"
 
     def from_properties(
-        self, name: str, properties: dict[str, Any], required: bool = False
+        self, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
     ):
         type_parsing = self.to_model(
-            name, properties.get("properties", {}), properties.get("required", [])
+            name,
+            properties.get("properties", {}),
+            properties.get("required", []),
+            **kwargs,
         )
         type_properties = {}
 
@@ -26,7 +30,11 @@ class ObjectTypeParser(GenericTypeParser):
         return type_parsing, type_properties
 
     def to_model(
-        self, name: str, schema: dict[str, Any], required_keys: list[str], **kwargs
+        self,
+        name: str,
+        schema: dict[str, Any],
+        required_keys: list[str],
+        **kwargs: Unpack[TypeParserOptions],
     ) -> type[ModelT]:
         """
         Converts JSON Schema object properties to a Pydantic model.
@@ -40,15 +48,19 @@ class ObjectTypeParser(GenericTypeParser):
 
     @staticmethod
     def _parse_properties(
-        properties: dict[str, Any], required_keys: list[str], **kwargs
+        properties: dict[str, Any],
+        required_keys: list[str],
+        **kwargs: Unpack[TypeParserOptions],
     ) -> dict[str, tuple[type, Field]]:
         required_keys = required_keys or []
 
         fields = {}
         for name, prop in properties.items():
-            is_required = name in required_keys
+            sub_property = kwargs.copy()
+            sub_property["required"] = name in required_keys
+
             parsed_type, parsed_properties = GenericTypeParser.type_from_properties(
-                name, prop, required=is_required, **kwargs
+                name, prop, **sub_property
             )
             fields[name] = (parsed_type, Field(**parsed_properties))
 

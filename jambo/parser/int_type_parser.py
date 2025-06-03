@@ -1,4 +1,7 @@
 from jambo.parser._type_parser import GenericTypeParser
+from jambo.types.type_parser_options import TypeParserOptions
+
+from typing_extensions import Unpack
 
 
 class IntTypeParser(GenericTypeParser):
@@ -15,8 +18,8 @@ class IntTypeParser(GenericTypeParser):
         "default": "default",
     }
 
-    def from_properties(self, name, properties, required=False):
-        mapped_properties = self.mappings_properties_builder(properties, required)
+    def from_properties(self, name, properties, **kwargs: Unpack[TypeParserOptions]):
+        mapped_properties = self.mappings_properties_builder(properties, **kwargs)
 
         default_value = mapped_properties.get("default")
         if default_value is not None:
