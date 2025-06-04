@@ -10,14 +10,16 @@ class AnyOfTypeParser(GenericTypeParser):
 
     json_schema_type = "anyOf"
 
-    def from_properties(self, name, properties, **kwargs: Unpack[TypeParserOptions]):
+    def from_properties_impl(
+        self, name, properties, **kwargs: Unpack[TypeParserOptions]
+    ):
         if "anyOf" not in properties:
             raise ValueError(f"Invalid JSON Schema: {properties}")
 
         if not isinstance(properties["anyOf"], list):
             raise ValueError(f"Invalid JSON Schema: {properties['anyOf']}")
 
-        mapped_properties = dict()
+        mapped_properties = self.mappings_properties_builder(properties, **kwargs)
 
         sub_properties = properties["anyOf"]
 
@@ -25,21 +27,6 @@ class AnyOfTypeParser(GenericTypeParser):
             GenericTypeParser.type_from_properties(name, subProperty, **kwargs)
             for subProperty in sub_properties
         ]
-
-        default_value = properties.get("default")
-        if default_value is not None:
-            for sub_type, sub_property in sub_types:
-                try:
-                    self.validate_default(sub_type, sub_property, default_value)
-                    break
-                except ValueError:
-                    continue
-            else:
-                raise ValueError(
-                    f"Invalid default value {default_value} for anyOf types: {sub_types}"
-                )
-
-            mapped_properties["default"] = default_value
 
         if not kwargs.get("required", False):
             mapped_properties["default"] = mapped_properties.get("default")

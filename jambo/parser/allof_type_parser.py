@@ -9,7 +9,9 @@ class AllOfTypeParser(GenericTypeParser):
 
     json_schema_type = "allOf"
 
-    def from_properties(self, name, properties, **kwargs: Unpack[TypeParserOptions]):
+    def from_properties_impl(
+        self, name, properties, **kwargs: Unpack[TypeParserOptions]
+    ):
         sub_properties = properties.get("allOf", [])
 
         root_type = properties.get("type")
@@ -23,7 +25,7 @@ class AllOfTypeParser(GenericTypeParser):
             sub_properties
         )
 
-        return parser().from_properties(name, combined_properties, **kwargs)
+        return parser().from_properties_impl(name, combined_properties, **kwargs)
 
     @staticmethod
     def _get_type_parser(

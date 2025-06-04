@@ -15,7 +15,7 @@ class TestObjectTypeParser(TestCase):
             },
         }
 
-        Model, _args = parser.from_properties("placeholder", properties)
+        Model, _args = parser.from_properties_impl("placeholder", properties)
 
         obj = Model(name="name", age=10)
 
@@ -37,7 +37,7 @@ class TestObjectTypeParser(TestCase):
             },
         }
 
-        _, type_validator = parser.from_properties("placeholder", properties)
+        _, type_validator = parser.from_properties_impl("placeholder", properties)
 
         # Check default value
         default_obj = type_validator["default_factory"]()

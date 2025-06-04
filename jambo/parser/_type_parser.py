@@ -12,7 +12,7 @@ T = TypeVar("T")
 class GenericTypeParser(ABC, Generic[T]):
     json_schema_type: str = None
 
-    type_mappings: dict[str, str] = None
+    type_mappings: dict[str, str] = {}
 
     default_mappings = {
         "default": "default",
@@ -20,14 +20,51 @@ class GenericTypeParser(ABC, Generic[T]):
     }
 
     @abstractmethod
+    def from_properties_impl(
+        self, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
+    ) -> tuple[T, dict]:
+        """
+        Abstract method to convert properties to a type and its fields properties.
+        :param name: The name of the type.
+        :param properties: The properties of the type.
+        :param kwargs: Additional options for type parsing.
+        :return: A tuple containing the type and its properties.
+        """
+        pass
+
     def from_properties(
         self, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
-    ) -> tuple[T, dict]: ...
+    ) -> tuple[type, dict]:
+        """
+        Converts properties to a type and its fields properties.
+        :param name: The name of the type.
+        :param properties: The properties of the type.
+        :param kwargs: Additional options for type parsing.
+        :return: A tuple containing the type and its properties.
+        """
+        parsed_type, parsed_properties = self.from_properties_impl(
+            name, properties, **kwargs
+        )
+
+        if not self._validate_default(parsed_type, parsed_properties):
+            raise ValueError(
+                f"Default value {properties.get('default')} is not valid for type {parsed_type.__name__}"
+            )
+
+        return parsed_type, parsed_properties
 
     @classmethod
     def type_from_properties(
         cls, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
     ) -> tuple[type, dict]:
+        """
+        Factory method to fetch the appropriate type parser based on properties
+        and generates the equivalent type and fields.
+        :param name: The name of the type to be created.
+        :param properties: The properties that define the type.
+        :param kwargs: Additional options for type parsing.
+        :return: A tuple containing the type and its properties.
+        """
         parser = cls._get_impl(properties)
 
         return parser().from_properties(name=name, properties=properties, **kwargs)
@@ -62,9 +99,6 @@ class GenericTypeParser(ABC, Generic[T]):
     def mappings_properties_builder(
         self, properties, **kwargs: Unpack[TypeParserOptions]
     ) -> dict[str, Any]:
-        if self.type_mappings is None:
-            raise NotImplementedError("Type mappings not defined")
-
         if not kwargs.get("required", False):
             properties["default"] = properties.get("default", None)
 
@@ -74,6 +108,20 @@ class GenericTypeParser(ABC, Generic[T]):
             mappings[key]: value for key, value in properties.items() if key in mappings
         }
 
-    def validate_default(self, field_type: type, field_prop: dict, value) -> None:
-        field = Annotated[field_type, Field(**field_prop)]
-        TypeAdapter(field).validate_python(value)
+    @staticmethod
+    def _validate_default(field_type: type, field_prop: dict) -> bool:
+        value = field_prop.get("default")
+
+        if value is None and field_prop.get("default_factory") is not None:
+            value = field_prop["default_factory"]()
+
+        if value is None:
+            return True
+
+        try:
+            field = Annotated[field_type, Field(**field_prop)]
+            TypeAdapter(field).validate_python(value)
+        except Exception as _:
+            return False
+
+        return True

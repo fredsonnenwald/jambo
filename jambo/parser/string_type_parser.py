@@ -34,24 +34,22 @@ class StringTypeParser(GenericTypeParser):
         "hostname": r"^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$",
     }
 
-    def from_properties(self, name, properties, **kwargs: Unpack[TypeParserOptions]):
-        mapped_properties = self.mappings_properties_builder(properties, **kwargs)
+    def from_properties_impl(
+        self, name, properties, **kwargs: Unpack[TypeParserOptions]
+    ):
+        mapped_properties = self.mappings_properties_builder(
+            properties, **kwargs
+        )
 
         format_type = properties.get("format")
-        if format_type:
-            if format_type in self.format_type_mapping:
-                mapped_type = self.format_type_mapping[format_type]
-                if format_type in self.format_pattern_mapping:
-                    mapped_properties["pattern"] = self.format_pattern_mapping[
-                        format_type
-                    ]
-            else:
-                raise ValueError(f"Unsupported string format: {format_type}")
-        else:
-            mapped_type = str
+        if not format_type:
+            return str, mapped_properties
 
-        default_value = properties.get("default")
-        if default_value is not None:
-            self.validate_default(mapped_type, mapped_properties, default_value)
+        if format_type not in self.format_type_mapping:
+            raise ValueError(f"Unsupported string format: {format_type}")
+
+        mapped_type = self.format_type_mapping[format_type]
+        if format_type in self.format_pattern_mapping:
+            mapped_properties["pattern"] = self.format_pattern_mapping[format_type]
 
         return mapped_type, mapped_properties

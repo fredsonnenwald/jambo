@@ -255,6 +255,7 @@ class TestSchemaConverter(TestCase):
 
         self.assertEqual(obj.name, "John")
 
+    def test_invalid_default_for_string(self):
         # Test for default with maxLength
         schema_max_length = {
             "title": "Person",

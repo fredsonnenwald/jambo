@@ -11,7 +11,7 @@ def with_test_parser():
         mapped_type = str
         json_schema_type = "type:invalid"
 
-        def from_properties(
+        def from_properties_impl(
             self, name: str, properties: dict[str, any], required: bool = False
         ): ...
 
@@ -39,11 +39,3 @@ class TestGenericTypeParser(TestCase):
         ):
             InvalidGenericTypeParser.json_schema_type = None
             GenericTypeParser._get_impl({"type": "another_invalid_type"})
-
-    def test_invalid_mappings_properties_builder(self):
-        with (
-            with_test_parser() as InvalidGenericTypeParser,
-            self.assertRaises(NotImplementedError),
-        ):
-            parser = InvalidGenericTypeParser()
-            parser.mappings_properties_builder({}, required=False)

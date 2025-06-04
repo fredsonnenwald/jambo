@@ -11,7 +11,7 @@ class ObjectTypeParser(GenericTypeParser):
 
     json_schema_type = "type:object"
 
-    def from_properties(
+    def from_properties_impl(
         self, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
     ):
         type_parsing = self.to_model(
@@ -39,7 +39,7 @@ class ObjectTypeParser(GenericTypeParser):
         """
         Converts JSON Schema object properties to a Pydantic model.
         :param name: The name of the model.
-        :param properties: The properties of the JSON Schema object.
+        :param schema: The properties of the JSON Schema object.
         :param required_keys: List of required keys in the schema.
         :return: A Pydantic model class.
         """
