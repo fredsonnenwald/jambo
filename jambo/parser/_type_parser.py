@@ -30,7 +30,6 @@ class GenericTypeParser(ABC, Generic[T]):
         :param kwargs: Additional options for type parsing.
         :return: A tuple containing the type and its properties.
         """
-        pass
 
     def from_properties(
         self, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
