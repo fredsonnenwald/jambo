@@ -9,7 +9,9 @@ class TestBoolTypeParser(TestCase):
 
         properties = {"type": "boolean"}
 
-        type_parsing, type_validator = parser.from_properties("placeholder", properties)
+        type_parsing, type_validator = parser.from_properties_impl(
+            "placeholder", properties
+        )
 
         self.assertEqual(type_parsing, bool)
         self.assertEqual(type_validator, {"default": None})
@@ -22,7 +24,9 @@ class TestBoolTypeParser(TestCase):
             "default": True,
         }
 
-        type_parsing, type_validator = parser.from_properties("placeholder", properties)
+        type_parsing, type_validator = parser.from_properties_impl(
+            "placeholder", properties
+        )
 
         self.assertEqual(type_parsing, bool)
         self.assertEqual(type_validator["default"], True)
@@ -36,4 +40,4 @@ class TestBoolTypeParser(TestCase):
         }
 
         with self.assertRaises(ValueError):
-            parser.from_properties("placeholder", properties)
+            parser.from_properties_impl("placeholder", properties)

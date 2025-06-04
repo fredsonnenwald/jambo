@@ -1,10 +1,8 @@
-from jambo.parser import GenericTypeParser
+from jambo.parser import ObjectTypeParser
 from jambo.types.json_schema_type import JSONSchema
 
 from jsonschema.exceptions import SchemaError
 from jsonschema.validators import validator_for
-from pydantic import create_model
-from pydantic.fields import Field
 from pydantic.main import ModelT
 
 
@@ -24,22 +22,6 @@ class SchemaConverter:
         :param schema: The JSON Schema to convert.
         :return: A Pydantic model class.
         """
-        if "title" not in schema:
-            raise ValueError("JSON Schema must have a title.")
-
-        return SchemaConverter.build_object(schema["title"], schema)
-
-    @staticmethod
-    def build_object(
-        name: str,
-        schema: JSONSchema,
-    ) -> type[ModelT]:
-        """
-        Converts a JSON Schema object to a Pydantic model given a name.
-        :param name:
-        :param schema:
-        :return:
-        """
 
         try:
             validator = validator_for(schema)
@@ -47,50 +29,14 @@ class SchemaConverter:
         except SchemaError as e:
             raise ValueError(f"Invalid JSON Schema: {e}")
 
+        if "title" not in schema:
+            raise ValueError("JSON Schema must have a title.")
+
         if schema["type"] != "object":
             raise TypeError(
                 f"Invalid JSON Schema: {schema['type']}. Only 'object' can be converted to Pydantic models."
             )
 
-        return SchemaConverter._build_model_from_properties(
-            name, schema["properties"], schema.get("required", [])
+        return ObjectTypeParser().to_model(
+            schema["title"], schema.get("properties"), schema.get("required")
         )
-
-    @staticmethod
-    def _build_model_from_properties(
-        model_name: str, model_properties: dict, required_keys: list[str]
-    ) -> type[ModelT]:
-        properties = SchemaConverter._parse_properties(model_properties, required_keys)
-
-        return create_model(model_name, **properties)
-
-    @staticmethod
-    def _parse_properties(
-        properties: dict, required_keys=None
-    ) -> dict[str, tuple[type, Field]]:
-        required_keys = required_keys or []
-
-        fields = {}
-        for name, prop in properties.items():
-            is_required = name in required_keys
-            fields[name] = SchemaConverter._build_field(name, prop, is_required)
-
-        return fields
-
-    @staticmethod
-    def _build_field(name, properties: dict, required=False) -> tuple[type, Field]:
-        match properties:
-            case {"anyOf": _}:
-                _field_type = "anyOf"
-            case {"allOf": _}:
-                _field_type = "allOf"
-            case {"type": _}:
-                _field_type = properties["type"]
-            case _:
-                raise ValueError(f"Invalid JSON Schema: {properties}")
-
-        _field_type, _field_args = GenericTypeParser.get_impl(
-            _field_type
-        ).from_properties(name, properties, required)
-
-        return _field_type, Field(**_field_args)

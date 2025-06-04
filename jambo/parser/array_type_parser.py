@@ -1,7 +1,9 @@
 from jambo.parser._type_parser import GenericTypeParser
+from jambo.types.type_parser_options import TypeParserOptions
+
+from typing_extensions import Iterable, TypeVar, Unpack
 
 import copy
-from typing import TypeVar
 
 
 V = TypeVar("V")
@@ -10,7 +12,7 @@ V = TypeVar("V")
 class ArrayTypeParser(GenericTypeParser):
     mapped_type = list
 
-    json_schema_type = "array"
+    json_schema_type = "type:array"
 
     default_mappings = {"description": "description"}
 
@@ -19,34 +21,34 @@ class ArrayTypeParser(GenericTypeParser):
         "minItems": "min_length",
     }
 
-    def from_properties(self, name, properties, required=False):
-        _item_type, _item_args = GenericTypeParser.get_impl(
-            properties["items"]["type"]
-        ).from_properties(name, properties["items"], required=True)
+    def from_properties_impl(
+        self, name, properties, **kwargs: Unpack[TypeParserOptions]
+    ):
+        item_properties = kwargs.copy()
+        item_properties["required"] = True
+        _item_type, _item_args = GenericTypeParser.type_from_properties(
+            name, properties["items"], **item_properties
+        )
 
         wrapper_type = set if properties.get("uniqueItems", False) else list
         field_type = wrapper_type[_item_type]
 
-        mapped_properties = self.mappings_properties_builder(
-            properties,
-            required=required,
-        )
+        mapped_properties = self.mappings_properties_builder(properties, **kwargs)
 
-        default_list = properties.pop("default", None)
-        if default_list is not None:
-            self.validate_default(
-                field_type,
-                mapped_properties,
-                default_list,
+        if "default" not in mapped_properties:
+            mapped_properties["default_factory"] = self._build_default_factory(
+                properties.get("default"), wrapper_type
             )
 
-            if wrapper_type is list:
-                mapped_properties["default_factory"] = lambda: copy.deepcopy(
-                    wrapper_type(default_list)
-                )
-            else:
-                mapped_properties["default_factory"] = lambda: wrapper_type(
-                    default_list
-                )
-
         return field_type, mapped_properties
+
+    def _build_default_factory(self, default_list, wrapper_type):
+        if default_list is None:
+            return lambda: None
+
+        if not isinstance(default_list, Iterable):
+            raise ValueError(
+                f"Default value for array must be an iterable, got {type(default_list)}"
+            )
+
+        return lambda: copy.deepcopy(wrapper_type(default_list))

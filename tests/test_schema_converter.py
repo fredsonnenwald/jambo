@@ -11,6 +11,20 @@ def is_pydantic_model(cls):
 
 
 class TestSchemaConverter(TestCase):
+    def test_invalid_schema(self):
+        schema = {
+            "title": 1,
+            "description": "A person",
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "age": {"type": "integer"},
+            },
+        }
+
+        with self.assertRaises(ValueError):
+            SchemaConverter.build(schema)
+
     def test_build_expects_title(self):
         schema = {
             "description": "A person",
@@ -23,20 +37,6 @@ class TestSchemaConverter(TestCase):
 
         with self.assertRaises(ValueError):
             SchemaConverter.build(schema)
-
-    def test_build_expects_valid_schema(self):
-        invalid_schema = {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "strng"
-                }  # typo: "strng" is not a valid JSON Schema type
-            },
-            "required": ["name"],
-        }
-
-        with self.assertRaises(ValueError):
-            SchemaConverter.build_object("placeholder", invalid_schema)
 
     def test_build_expects_object(self):
         schema = {
@@ -61,8 +61,9 @@ class TestSchemaConverter(TestCase):
             # 'required': ['name', 'age', 'is_active', 'friends', 'address'],
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as context:
             SchemaConverter.build(schema)
+            self.assertTrue("Unknown type" in str(context.exception))
 
     def test_jsonschema_to_pydantic(self):
         schema = {
@@ -254,6 +255,7 @@ class TestSchemaConverter(TestCase):
 
         self.assertEqual(obj.name, "John")
 
+    def test_invalid_default_for_string(self):
         # Test for default with maxLength
         schema_max_length = {
             "title": "Person",

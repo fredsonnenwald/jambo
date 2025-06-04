@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, TypedDict, Union
+from typing_extensions import Dict, List, Literal, TypedDict, Union
 
 
 JSONSchemaType = Literal[

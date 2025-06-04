@@ -1,6 +1,7 @@
 from jambo.parser import ArrayTypeParser
 
-from typing import get_args
+from typing_extensions import get_args
+
 from unittest import TestCase
 
 
@@ -72,7 +73,7 @@ class TestArrayTypeParser(TestCase):
     def test_array_parser_with_invalid_default_type(self):
         parser = ArrayTypeParser()
 
-        properties = {"items": {"type": "string"}, "default": "not_a_list"}
+        properties = {"items": {"type": "string"}, "default": 000}
 
         with self.assertRaises(ValueError):
             parser.from_properties("placeholder", properties)

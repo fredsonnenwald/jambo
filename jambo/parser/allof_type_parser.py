@@ -1,4 +1,7 @@
 from jambo.parser._type_parser import GenericTypeParser
+from jambo.types.type_parser_options import TypeParserOptions
+
+from typing_extensions import Any, Unpack
 
 
 class AllOfTypeParser(GenericTypeParser):
@@ -6,36 +9,45 @@ class AllOfTypeParser(GenericTypeParser):
 
     json_schema_type = "allOf"
 
-    def from_properties(self, name, properties, required=False):
-        subProperties = properties.get("allOf")
-        if not subProperties:
-            raise ValueError("Invalid JSON Schema: 'allOf' is not specified.")
+    def from_properties_impl(
+        self, name, properties, **kwargs: Unpack[TypeParserOptions]
+    ):
+        sub_properties = properties.get("allOf", [])
 
-        _mapped_type = properties.get("type")
-        if _mapped_type is None:
-            _mapped_type = subProperties[0].get("type")
+        root_type = properties.get("type")
+        if root_type is not None:
+            for sub_property in sub_properties:
+                sub_property["type"] = root_type
 
-        if _mapped_type is None:
-            raise ValueError("Invalid JSON Schema: 'type' is not specified.")
+        parser = self._get_type_parser(sub_properties)
 
-        if any(
-            [prop.get("type", _mapped_type) != _mapped_type for prop in subProperties]
-        ):
-            raise ValueError("Invalid JSON Schema: allOf types do not match.")
-
-        for subProperty in subProperties:
-            # If a sub-property has not defined a type, we need to set it to the top-level type
-            subProperty["type"] = _mapped_type
-
-        combined_properties = self._rebuild_properties_from_subproperties(subProperties)
-
-        return GenericTypeParser.get_impl(_mapped_type).from_properties(
-            name, combined_properties
+        combined_properties = self._rebuild_properties_from_subproperties(
+            sub_properties
         )
 
-    def _rebuild_properties_from_subproperties(self, subProperties):
+        return parser().from_properties_impl(name, combined_properties, **kwargs)
+
+    @staticmethod
+    def _get_type_parser(
+        sub_properties: list[dict[str, Any]],
+    ) -> type[GenericTypeParser]:
+        if not sub_properties:
+            raise ValueError("Invalid JSON Schema: 'allOf' is empty.")
+
+        parsers = set(
+            GenericTypeParser._get_impl(sub_property) for sub_property in sub_properties
+        )
+        if len(parsers) != 1:
+            raise ValueError("Invalid JSON Schema: allOf types do not match.")
+
+        return parsers.pop()
+
+    @staticmethod
+    def _rebuild_properties_from_subproperties(
+        sub_properties: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         properties = {}
-        for subProperty in subProperties:
+        for subProperty in sub_properties:
             for name, prop in subProperty.items():
                 if name not in properties:
                     properties[name] = prop
