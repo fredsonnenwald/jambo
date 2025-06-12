@@ -4,7 +4,7 @@ from jambo.types.type_parser_options import TypeParserOptions
 from typing_extensions import Any, ForwardRef, TypeVar, Union, Unpack
 
 
-RefType = TypeVar("RefType", bound=Union[int, str])
+RefType = TypeVar("RefType", bound=Union[type, ForwardRef])
 
 
 class RefTypeParser(GenericTypeParser):
@@ -30,16 +30,13 @@ class RefTypeParser(GenericTypeParser):
                 "Look into $defs and # for recursive references."
             )
 
-        ref_type = None
-        mapped_properties = {}
-
         if properties["$ref"] == "#":
             if "title" not in context:
                 raise ValueError(
                     "RefTypeParser: Missing title in properties for $ref #"
                 )
 
-            ref_type = ForwardRef(context["title"])
+            return ForwardRef(context["title"]), {}
 
         elif properties["$ref"].startswith("#/$defs/"):
             target_name = None
@@ -56,17 +53,8 @@ class RefTypeParser(GenericTypeParser):
             if target_name is None or target_property is None:
                 raise ValueError(f"RefTypeParser: Invalid $ref {properties['$ref']}")
 
-            ref_type, mapped_properties = GenericTypeParser.type_from_properties(
+            return GenericTypeParser.type_from_properties(
                 target_name, target_property, **kwargs
             )
 
-        else:
-            raise ValueError(
-                "RefTypeParser: Invalid $ref format. "
-                "Only local references are supported."
-            )
-
-        if not required:
-            mapped_properties["default"] = None
-
-        return ref_type, mapped_properties
+        raise ValueError(f"RefTypeParser: Unsupported $ref {properties['$ref']}")

@@ -1,7 +1,9 @@
-from typing_extensions import Any, NotRequired, TypedDict
+from jambo.types.json_schema_type import JSONSchema
+
+from typing_extensions import NotRequired, TypedDict
 
 
 class TypeParserOptions(TypedDict):
     required: bool
-    context: dict[str, Any]
+    context: JSONSchema
     ref_cache: NotRequired[dict[str, type]]
