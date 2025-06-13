@@ -3,7 +3,7 @@ from jambo.types.json_schema_type import JSONSchema
 
 from jsonschema.exceptions import SchemaError
 from jsonschema.validators import validator_for
-from pydantic.main import ModelT
+from pydantic import BaseModel
 
 
 class SchemaConverter:
@@ -16,7 +16,7 @@ class SchemaConverter:
     """
 
     @staticmethod
-    def build(schema: JSONSchema) -> type[ModelT]:
+    def build(schema: JSONSchema) -> type[BaseModel]:
         """
         Converts a JSON Schema to a Pydantic model.
         :param schema: The JSON Schema to convert.
@@ -32,11 +32,22 @@ class SchemaConverter:
         if "title" not in schema:
             raise ValueError("JSON Schema must have a title.")
 
-        if schema["type"] != "object":
+        if (schema_type := schema.get("type", "undefined")) != "object":
             raise TypeError(
-                f"Invalid JSON Schema: {schema['type']}. Only 'object' can be converted to Pydantic models."
+                f"Invalid JSON Schema: {schema_type}. Only 'object' can be converted to Pydantic models."
             )
 
-        return ObjectTypeParser().to_model(
-            schema["title"], schema.get("properties"), schema.get("required")
+        parsed_model = ObjectTypeParser.to_model(
+            schema["title"],
+            schema.get("properties"),
+            schema.get("required"),
+            context=schema,
+            ref_cache=dict(),
         )
+
+        if not issubclass(parsed_model, BaseModel):
+            raise TypeError(
+                f"Parsed model {parsed_model.__name__} is not a subclass of BaseModel."
+            )
+
+        return parsed_model
