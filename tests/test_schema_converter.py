@@ -546,6 +546,19 @@ class TestSchemaConverter(TestCase):
             },
         }
 
-        with self.assertRaises(TypeError):
-            # This should raise TypeError because the root schema is not an object
-            SchemaConverter.build(schema)
+        model = SchemaConverter.build(schema)
+
+        obj = model(
+            name="John",
+            age=30,
+            emergency_contact=model(
+                name="Jane",
+                age=28,
+            ),
+        )
+
+        self.assertEqual(obj.name, "John")
+        self.assertEqual(obj.age, 30)
+        self.assertIsInstance(obj.emergency_contact, model)
+        self.assertEqual(obj.emergency_contact.name, "Jane")
+        self.assertEqual(obj.emergency_contact.age, 28)
