@@ -6,6 +6,8 @@ from typing_extensions import Any, ForwardRef, Literal, TypeVar, Union, Unpack
 
 RefType = TypeVar("RefType", bound=Union[type, ForwardRef])
 
+RefStrategy = Literal["forward_ref", "def_ref"]
+
 
 class RefTypeParser(GenericTypeParser):
     json_schema_type = "$ref"
@@ -16,38 +18,42 @@ class RefTypeParser(GenericTypeParser):
         if "$ref" not in properties:
             raise ValueError(f"RefTypeParser: Missing $ref in properties for {name}")
 
-        context = kwargs["context"]
-        ref_cache = kwargs["ref_cache"]
-
-        mapped_type = None
-        mapped_properties = self.mappings_properties_builder(properties, **kwargs)
-
+        context = kwargs.get("context")
         if context is None:
             raise RuntimeError(
-                f"RefTypeParser: Missing $content in properties for {name}"
+                f"RefTypeParser: Missing `content` in properties for {name}"
             )
 
-        if not properties["$ref"].startswith("#"):
-            raise ValueError(
-                "At the moment, only local references are supported. "
-                "Look into $defs and # for recursive references."
+        ref_cache = kwargs.get("ref_cache")
+        if ref_cache is None:
+            raise RuntimeError(
+                f"RefTypeParser: Missing `ref_cache` in properties for {name}"
             )
+
+        mapped_properties = self.mappings_properties_builder(properties, **kwargs)
 
         ref_strategy, ref_name, ref_property = self._examine_ref_strategy(
             name, properties, **kwargs
         )
 
-        # In this code ellipsis is used to indicate that the reference is still being processed,
-        # If the reference is already in the cache, return it.
-        ref_state = ref_cache.setdefault(ref_name)
-
-        if ref_state is Ellipsis:
-            return ForwardRef(ref_name), mapped_properties
-        elif ref_state is not None:
+        ref_state = self._get_ref_from_cache(ref_name, ref_cache)
+        if ref_state is not None:
+            # If the reference is either processing or already cached
             return ref_state, mapped_properties
-        else:
-            ref_cache[ref_name] = Ellipsis
 
+        ref_cache[ref_name] = self._parse_from_strategy(
+            ref_strategy, ref_name, ref_property, **kwargs
+        )
+
+        return ref_cache[ref_name], mapped_properties
+
+    def _parse_from_strategy(
+        self,
+        ref_strategy: RefStrategy,
+        ref_name: str,
+        ref_property: dict[str, Any],
+        **kwargs: Unpack[TypeParserOptions],
+    ):
         match ref_strategy:
             case "forward_ref":
                 mapped_type = ForwardRef(ref_name)
@@ -57,22 +63,35 @@ class RefTypeParser(GenericTypeParser):
                 )
             case _:
                 raise ValueError(
-                    f"RefTypeParser: Unsupported $ref {properties['$ref']}"
+                    f"RefTypeParser: Unsupported $ref {ref_property['$ref']}"
                 )
 
-        # Sets cached reference to the mapped type
-        ref_cache[ref_name] = mapped_type
+        return mapped_type
 
-        return mapped_type, mapped_properties
+    def _get_ref_from_cache(
+        self, ref_name: str, ref_cache: dict[str, type]
+    ) -> RefType | type | None:
+        try:
+            ref_state = ref_cache[ref_name]
+
+            if ref_state is None:
+                # If the reference is being processed, we return a ForwardRef
+                return ForwardRef(ref_name)
+
+            # If the reference is already cached, we return it
+            return ref_state
+        except KeyError:
+            # If the reference is not in the cache, we will set it to None
+            ref_cache[ref_name] = None
 
     def _examine_ref_strategy(
         self, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
-    ) -> tuple[Literal["forward_ref", "def_ref"], str, dict]:
+    ) -> tuple[RefStrategy, str, dict] | None:
         if properties["$ref"] == "#":
             ref_name = kwargs["context"].get("title")
             if ref_name is None:
                 raise ValueError(
-                    f"RefTypeParser: Missing title in properties for $ref {properties['$ref']}"
+                    "RefTypeParser: Missing title in properties for $ref of Root Reference"
                 )
             return "forward_ref", ref_name, {}
 
@@ -82,7 +101,9 @@ class RefTypeParser(GenericTypeParser):
             )
             return "def_ref", target_name, target_property
 
-        raise ValueError(f"RefTypeParser: Unsupported $ref {properties['$ref']}")
+        raise ValueError(
+            "RefTypeParser: Only Root and $defs references are supported at the moment"
+        )
 
     def _extract_target_ref(
         self, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
