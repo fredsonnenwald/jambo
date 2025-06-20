@@ -50,7 +50,6 @@ class SchemaConverter:
                     schema,
                     context=schema,
                     ref_cache=dict(),
-                    required=True,
                 )
                 return parsed_model
             case _:
