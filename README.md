@@ -27,10 +27,10 @@ Created to simplifying the process of dynamically generating Pydantic models for
 
 ## ✨ Features
 
-- ✅ Convert JSON Schema into Pydantic models dynamically
-- 🔒 Supports validation for strings, integers, floats, booleans, arrays, and nested objects
-- ⚙️ Enforces constraints like `minLength`, `maxLength`, `pattern`, `minimum`, `maximum`, `uniqueItems`, and more
-- 📦 Zero config — just pass your schema and get a model
+- ✅ Convert JSON Schema into Pydantic models dynamically;
+- 🔒 Supports validation for strings, integers, floats, booleans, arrays, nested objects, allOf, anyOf and ref;
+- ⚙️ Enforces constraints like `minLength`, `maxLength`, `pattern`, `minimum`, `maximum`, `uniqueItems`, and more;
+- 📦 Zero config — just pass your schema and get a model.
 
 ---
 
@@ -45,7 +45,8 @@ pip install jambo
 ## 🚀 Usage
 
 ```python
-from jambo.schema_converter import SchemaConverter
+from jambo import SchemaConverter
+
 
 schema = {
     "title": "Person",
@@ -70,6 +71,9 @@ print(obj)
 ### Strings with constraints
 
 ```python
+from jambo import SchemaConverter
+
+
 schema = {
     "title": "EmailExample",
     "type": "object",
@@ -92,6 +96,9 @@ print(obj)
 ### Integers with bounds
 
 ```python
+from jambo import SchemaConverter
+
+
 schema = {
     "title": "AgeExample",
     "type": "object",
@@ -109,6 +116,9 @@ print(obj)
 ### Nested Objects
 
 ```python
+from jambo import SchemaConverter
+
+
 schema = {
     "title": "NestedObjectExample",
     "type": "object",
@@ -128,6 +138,41 @@ schema = {
 Model = SchemaConverter.build(schema)
 obj = Model(address={"street": "Main St", "city": "Gotham"})
 print(obj)
+```
+
+### References
+
+```python
+from jambo import SchemaConverter
+
+
+schema = {
+    "title": "person",
+    "$ref": "#/$defs/person",
+    "$defs": {
+        "person": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "age": {"type": "integer"},
+                "emergency_contact": {
+                    "$ref": "#/$defs/person",
+                },
+            },
+        }
+    },
+}
+
+model = SchemaConverter.build(schema)
+
+obj = model(
+    name="John",
+    age=30,
+    emergency_contact=model(
+        name="Jane",
+        age=28,
+    ),
+)
 ```
 
 ---
@@ -171,8 +216,6 @@ poe create-hooks
 ## 📌 Roadmap / TODO
 
 - [ ] Support for `enum` and `const`
-- [ ] Support for `anyOf`, `allOf`, `oneOf`
-- [ ] Schema ref (`$ref`) resolution
 - [ ] Better error reporting for unsupported schema types
 
 ---
