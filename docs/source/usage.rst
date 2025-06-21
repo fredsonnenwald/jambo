@@ -38,3 +38,6 @@ For more complex schemas and types see our documentation on
    :caption: Contents:
 
    usage.string
+   usage.numeric
+   usage.bool
+   usage.array
