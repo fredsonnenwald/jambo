@@ -28,10 +28,38 @@ Examples
         "title": "StringExample",
         "type": "object",
         "properties": {
-            "email": {
+            "attr1": {
                 "type": "string",
                 "minLength": 5,
                 "maxLength": 50,
+            },
+        },
+        "required": ["attr1"],
+    }
+
+    Model = SchemaConverter.build(schema)
+
+    obj = Model(attr1="this_is_a_valid_string")
+    print(obj)
+    # Output: StringExample(attr1='this_is_a_valid_string')
+
+2. String with pattern and format:
+
+
+Pattern example:
+
+.. code-block:: python
+
+    from jambo import SchemaConverter
+
+
+    schema = {
+        "title": "StringExample",
+        "type": "object",
+        "properties": {
+            "email": {
+                "type": "string",
+                "pattern": r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$",
             },
         },
         "required": ["email"],
@@ -39,8 +67,41 @@ Examples
 
     Model = SchemaConverter.build(schema)
 
-    obj = Model(email="this_is_a_valid_string")
+    obj = Model(email="test@email.com")
     print(obj)
-    # Output: StringExample(email='this_is_a_valid_string')
+    # Output: StringExample(email='test@email.com')
 
-2. String with pattern and format:
+    try:
+        Model(email="invalid-email")
+    except ValueError as e:
+        print("Validation Failed as Expected")  # Output: Validation Failed as Expected
+
+
+Format example:
+
+.. code-block:: python
+
+    from jambo import SchemaConverter
+
+    schema = {
+        "title": "StringExample",
+        "type": "object",
+        "properties": {
+            "email": {
+                "type": "string",
+                "format": "email",
+            },
+        },
+        "required": ["email"],
+    }
+
+    Model = SchemaConverter.build(schema)
+
+    obj = Model(email="test@email.com")
+    print(obj) 
+    # Output: StringExample(email='test@email.com')
+
+    try:
+        Model(email="invalid-email")
+    except ValueError as e:
+        print("Validation Failed as Expected")  # Output: Validation Failed as Expected
