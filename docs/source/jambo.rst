@@ -18,13 +18,13 @@ jambo.schema\_converter module
 
 .. automodule:: jambo.schema_converter
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: jambo
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
