@@ -562,3 +562,38 @@ class TestSchemaConverter(TestCase):
         self.assertIsInstance(obj.emergency_contact, model)
         self.assertEqual(obj.emergency_contact.name, "Jane")
         self.assertEqual(obj.emergency_contact.age, 28)
+
+    def test_ref_with_def_another_model(self):
+        schema = {
+            "title": "Person",
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "age": {"type": "integer"},
+                "address": {"$ref": "#/$defs/Address"},
+            },
+            "required": ["name"],
+            "$defs": {
+                "Address": {
+                    "type": "object",
+                    "properties": {
+                        "street": {"type": "string"},
+                        "city": {"type": "string"},
+                    },
+                    "required": ["street", "city"],
+                }
+            },
+        }
+
+        Model = SchemaConverter.build(schema)
+
+        obj = Model(
+            name="John",
+            age=30,
+            address={"street": "123 Main St", "city": "Springfield"},
+        )
+
+        self.assertEqual(obj.name, "John")
+        self.assertEqual(obj.age, 30)
+        self.assertEqual(obj.address.street, "123 Main St")
+        self.assertEqual(obj.address.city, "Springfield")

@@ -42,3 +42,4 @@ For more complex schemas and types see our documentation on
    usage.bool
    usage.array
    usage.object
+   usage.reference
