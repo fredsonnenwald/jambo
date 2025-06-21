@@ -34,12 +34,14 @@ If passed a description inside the schema it will also add it to the Pydantic mo
 For more complex schemas and types see our documentation on
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 2
+    :caption: Contents:
 
-   usage.string
-   usage.numeric
-   usage.bool
-   usage.array
-   usage.object
-   usage.reference
+    usage.string
+    usage.numeric
+    usage.bool
+    usage.array
+    usage.object
+    usage.reference
+    usage.allof
+    usage.anyof

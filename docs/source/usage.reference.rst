@@ -78,4 +78,8 @@ Examples
     but you can access the model class by using the `Model.__fields__` attribute to get the field definitions, 
     or by using the `Model.model_fields` property to get a dictionary of field names and their types.
 
-.. 
+.. warning::
+
+    The JSON Schema Reference specification allows for uri referneces, 
+    but Jambo currently only supports root references (using the `#` symbol) 
+    and def references (using the `$def` property).
