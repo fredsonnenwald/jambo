@@ -41,3 +41,4 @@ For more complex schemas and types see our documentation on
    usage.numeric
    usage.bool
    usage.array
+   usage.object
