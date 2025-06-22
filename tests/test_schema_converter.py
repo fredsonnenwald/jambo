@@ -597,3 +597,40 @@ class TestSchemaConverter(TestCase):
         self.assertEqual(obj.age, 30)
         self.assertEqual(obj.address.street, "123 Main St")
         self.assertEqual(obj.address.city, "Springfield")
+
+    def test_enum_type_parser(self):
+        schema = {
+            "title": "Person",
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "enum": ["active", "inactive", "pending"],
+                }
+            },
+            "required": ["status"],
+        }
+
+        Model = SchemaConverter.build(schema)
+
+        obj = Model(status="active")
+        self.assertEqual(obj.status.value, "active")
+
+    def test_enum_type_parser_with_default(self):
+        schema = {
+            "title": "Person",
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "enum": ["active", "inactive", "pending"],
+                    "default": "active",
+                }
+            },
+            "required": ["status"],
+        }
+
+        Model = SchemaConverter.build(schema)
+
+        obj = Model()
+        self.assertEqual(obj.status.value, "active")
