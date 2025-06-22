@@ -78,3 +78,13 @@ class TestEnumTypeParser(TestCase):
 
         with self.assertRaises(ValueError):
             parser.from_properties_impl("TestEnum", schema)
+
+    def test_enum_type_parser_throws_invalid_enum_value(self):
+        parser = EnumTypeParser()
+        
+        schema = {
+            "enum": ["value1", 42, dict()],
+        }
+
+        with self.assertRaises(ValueError):
+            parser.from_properties_impl("TestEnum", schema)
