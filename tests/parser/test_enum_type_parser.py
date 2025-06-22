@@ -66,7 +66,7 @@ class TestEnumTypeParser(TestCase):
         self.assertEqual(
             set(parsed_type.__members__.keys()), {"VALUE1", "VALUE2", "VALUE3"}
         )
-        self.assertEqual(parsed_properties["default"], "value2")
+        self.assertEqual(parsed_properties["default"].value, "value2")
 
     def test_enum_type_parser_throws_invalid_default(self):
         parser = EnumTypeParser()

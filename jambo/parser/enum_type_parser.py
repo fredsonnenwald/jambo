@@ -25,11 +25,8 @@ class EnumTypeParser(GenericTypeParser):
         parsed_properties = self.mappings_properties_builder(properties, **kwargs)
 
         if (
-            "default" in parsed_properties
-            and parsed_properties["default"] not in enum_values
+            "default" in parsed_properties and parsed_properties["default"] is not None
         ):
-            raise ValueError(
-                f"Default value {parsed_properties['default']} is not a valid member of enum {name}."
-            )
+            parsed_properties["default"] = enum_type(parsed_properties["default"])
 
         return enum_type, parsed_properties
