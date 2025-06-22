@@ -50,6 +50,7 @@ repository = "https://github.com/HideyoshiNakazone/jambo.git"
 create-hooks        = "bash .githooks/set-hooks.sh"
 tests               = "python -m coverage run -m unittest discover -v"
 tests-report        = "python -m coverage xml"
+serve-docs         = "sphinx-autobuild docs/source docs/build"
 
 # Build System
 [tool.hatch.version]
