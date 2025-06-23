@@ -215,7 +215,6 @@ poe create-hooks
 
 ## 📌 Roadmap / TODO
 
-- [ ] Support for `enum` and `const`
 - [ ] Better error reporting for unsupported schema types
 
 ---
