@@ -28,7 +28,18 @@ Created to simplifying the process of dynamically generating Pydantic models for
 ## ✨ Features
 
 - ✅ Convert JSON Schema into Pydantic models dynamically;
-- 🔒 Supports validation for strings, integers, floats, booleans, arrays, nested objects, allOf, anyOf and ref;
+- 🔒 Supports validation for:
+    - strings
+    - integers
+    - floats
+    - booleans
+    - arrays
+    - nested objects
+    - allOf
+    - anyOf
+    - ref
+    - enum
+    - const
 - ⚙️ Enforces constraints like `minLength`, `maxLength`, `pattern`, `minimum`, `maximum`, `uniqueItems`, and more;
 - 📦 Zero config — just pass your schema and get a model.
 
@@ -67,6 +78,8 @@ print(obj)
 ---
 
 ## ✅ Example Validations
+
+Following are some examples of how to use Jambo to create Pydantic models with various JSON Schema features, but for more information, please refer to the [documentation](https://jambo.readthedocs.io/).
 
 ### Strings with constraints
 
@@ -215,7 +228,6 @@ poe create-hooks
 
 ## 📌 Roadmap / TODO
 
-- [ ] Support for `enum` and `const`
 - [ ] Better error reporting for unsupported schema types
 
 ---
