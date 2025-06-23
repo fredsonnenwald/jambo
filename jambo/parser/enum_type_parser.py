@@ -1,4 +1,5 @@
 from jambo.parser._type_parser import GenericTypeParser
+from jambo.types.json_schema_type import JSONSchemaNativeTypes
 from jambo.types.type_parser_options import TypeParserOptions
 
 from typing_extensions import Unpack
@@ -8,16 +9,6 @@ from enum import Enum
 
 class EnumTypeParser(GenericTypeParser):
     json_schema_type = "enum"
-
-    allowed_types: tuple[type] = (
-        str, 
-        int,
-        float,
-        bool,
-        list,
-        set,
-        type(None),
-    )
 
     def from_properties_impl(
         self, name, properties, **kwargs: Unpack[TypeParserOptions]
@@ -31,10 +22,10 @@ class EnumTypeParser(GenericTypeParser):
             raise ValueError(f"Enum type {name} must have 'enum' as a list of values.")
 
         if any(
-            not isinstance(value, self.allowed_types) for value in enum_values
+            not isinstance(value, JSONSchemaNativeTypes) for value in enum_values
         ):
             raise ValueError(
-                f"Enum type {name} must have 'enum' values of allowed types: {self.allowed_types}."
+                f"Enum type {name} must have 'enum' values of allowed types: {JSONSchemaNativeTypes}."
             )
 
         # Create a new Enum type dynamically

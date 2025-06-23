@@ -1,7 +1,7 @@
 from jambo.parser._type_parser import GenericTypeParser
 from jambo.types.type_parser_options import TypeParserOptions
 
-from pydantic import BaseModel, Field, create_model
+from pydantic import BaseModel, ConfigDict, Field, create_model
 from typing_extensions import Any, Unpack
 
 
@@ -43,8 +43,10 @@ class ObjectTypeParser(GenericTypeParser):
         :param required_keys: List of required keys in the schema.
         :return: A Pydantic model class.
         """
+        model_config = ConfigDict(validate_assignment=True)
         fields = cls._parse_properties(schema, required_keys, **kwargs)
-        return create_model(name, **fields)
+
+        return create_model(name, __config__=model_config, **fields)
 
     @classmethod
     def _parse_properties(
