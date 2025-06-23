@@ -634,3 +634,26 @@ class TestSchemaConverter(TestCase):
 
         obj = Model()
         self.assertEqual(obj.status.value, "active")
+
+    def test_const_type_parser(self):
+        schema = {
+            "title": "Country",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "const": "United States of America",
+                }
+            },
+            "required": ["name"],
+        }
+
+        Model = SchemaConverter.build(schema)
+
+        obj = Model()
+        self.assertEqual(obj.name, "United States of America")
+
+        with self.assertRaises(ValueError):
+            obj.name = "Canada"
+
+        with self.assertRaises(ValueError):
+            Model(name="Canada")

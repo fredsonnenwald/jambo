@@ -9,6 +9,11 @@ from typing_extensions import Annotated, Any, Unpack
 class ConstTypeParser(GenericTypeParser):
     json_schema_type = "const"
 
+    default_mappings = {
+        "const": "default",
+        "description": "description",
+    }
+
     def from_properties_impl(
         self, name, properties, **kwargs: Unpack[TypeParserOptions]
     ):
@@ -21,15 +26,12 @@ class ConstTypeParser(GenericTypeParser):
             raise ValueError(
                 f"Const type {name} must have 'const' value of allowed types: {JSONSchemaNativeTypes}."
             )
-        
+
         const_type = self._build_const_type(const_value)
-        parsed_properties = {
-            "default": const_value,
-            "description": properties.get("description"),
-        }
-        
+        parsed_properties = self.mappings_properties_builder(properties, **kwargs)
+
         return const_type, parsed_properties
-    
+
     def _build_const_type(self, const_value):
         def _validate_const_value(value: Any) -> Any:
             if value != const_value:
@@ -37,10 +39,5 @@ class ConstTypeParser(GenericTypeParser):
                     f"Value must be equal to the constant value: {const_value}"
                 )
             return value
-        
-        return Annotated[
-            type(const_value),
-            AfterValidator(
-                _validate_const_value
-            )
-        ]
+
+        return Annotated[type(const_value), AfterValidator(_validate_const_value)]
