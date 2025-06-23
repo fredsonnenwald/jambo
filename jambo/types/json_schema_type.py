@@ -1,9 +1,22 @@
 from typing_extensions import Dict, List, Literal, TypedDict, Union
 
+from types import NoneType
+
 
 JSONSchemaType = Literal[
     "string", "number", "integer", "boolean", "object", "array", "null"
 ]
+
+
+JSONSchemaNativeTypes: tuple[type, ...] = (
+    str, 
+    int,
+    float,
+    bool,
+    list,
+    set,
+    NoneType,
+)
 
 
 JSONType = Union[str, int, float, bool, None, Dict[str, "JSONType"], List["JSONType"]]
