@@ -2,7 +2,7 @@ from jambo.parser import StringTypeParser
 
 from pydantic import EmailStr, HttpUrl, IPvAnyAddress
 
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from unittest import TestCase
 
 
@@ -197,3 +197,15 @@ class TestStringTypeParser(TestCase):
         type_parsing, type_validator = parser.from_properties("placeholder", properties)
 
         self.assertEqual(type_parsing, datetime)
+
+    def test_string_parser_with_timedelta_format(self):
+        parser = StringTypeParser()
+
+        properties = {
+            "type": "string",
+            "format": "duration",
+        }
+
+        type_parsing, type_validator = parser.from_properties("placeholder", properties)
+
+        self.assertEqual(type_parsing, timedelta)
