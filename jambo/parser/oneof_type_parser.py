@@ -31,33 +31,50 @@ class OneOfTypeParser(GenericTypeParser):
         if not kwargs.get("required", False):
             mapped_properties["default"] = mapped_properties.get("default")
 
-        field_types = [
-            Annotated[t, Field(**v)] if self._has_meaningful_constraints(v) else t
-            for t, v in sub_types
-        ]
+        subfield_types = [Annotated[t, Field(**v)] for t, v in sub_types]
 
-        union_type = Union[(*field_types,)]
-
+        # Added with the understanding of discriminator are not in the JsonSchema Spec,
+        # they were added by OpenAI and not all implementations may support them,
+        # and they do not always generate a model one-to-one to the Pydantic model
+        # TL;DR: Discriminators were added by OpenAI and not a Official JSON Schema feature
         discriminator = properties.get("discriminator")
-        if discriminator and isinstance(discriminator, dict):
-            property_name = discriminator.get("propertyName")
-            if property_name:
-                validated_type = Annotated[
-                    union_type, Field(discriminator=property_name)
-                ]
-                return validated_type, mapped_properties
+        if discriminator is not None:
+            validated_type = self._build_type_one_of_with_discriminator(
+                subfield_types, discriminator
+            )
+        else:
+            validated_type = self._build_type_one_of_with_func(subfield_types)
+
+        return validated_type, mapped_properties
+
+    @staticmethod
+    def _build_type_one_of_with_discriminator(
+        subfield_types: list[Annotated], discriminator_prop: dict
+    ) -> Annotated:
+        if not isinstance(discriminator_prop, dict):
+            raise ValueError("Discriminator must be a dictionary")
+
+        property_name = discriminator_prop.get("propertyName")
+        if property_name is None or not isinstance(property_name, str):
+            raise ValueError("Discriminator must have a 'propertyName' key")
+
+        return Annotated[Union[(*subfield_types,)], Field(discriminator=property_name)]
+
+    @staticmethod
+    def _build_type_one_of_with_func(subfield_types: list[Annotated]) -> Annotated:
+        """
+        Build a validation function for the oneOf constraint.
+        This function will validate that the value matches exactly one of the schemas.
+        """
 
         def validate_one_of(value: Any) -> Any:
             matched_count = 0
-            validation_errors = []
 
-            for field_type in field_types:
+            for field_type in subfield_types:
                 try:
-                    adapter = TypeAdapter(field_type)
-                    adapter.validate_python(value)
+                    TypeAdapter(field_type).validate_python(value)
                     matched_count += 1
-                except ValidationError as e:
-                    validation_errors.append(str(e))
+                except ValidationError:
                     continue
 
             if matched_count == 0:
@@ -69,8 +86,7 @@ class OneOfTypeParser(GenericTypeParser):
 
             return value
 
-        validated_type = Annotated[union_type, BeforeValidator(validate_one_of)]
-        return validated_type, mapped_properties
+        return Annotated[Union[(*subfield_types,)], BeforeValidator(validate_one_of)]
 
     @staticmethod
     def _has_meaningful_constraints(field_props):
