@@ -106,3 +106,7 @@ Examples
 .. warning::
 
     If your data could match multiple schemas in a oneOf, validation will fail. Ensure schemas are mutually exclusive.
+
+.. warning::
+
+    The discriminator feature is not officially in the JSON Schema specification, it was introduced by OpenAI. Use it with caution and ensure it fits your use case.
