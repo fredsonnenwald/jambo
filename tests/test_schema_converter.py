@@ -701,6 +701,29 @@ class TestSchemaConverter(TestCase):
         with self.assertRaises(ValueError):
             Model(name="Canada")
 
+    def test_const_type_parser_with_non_hashable_value(self):
+        schema = {
+            "title": "Country",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "const": ["Brazil"],
+                }
+            },
+            "required": ["name"],
+        }
+
+        Model = SchemaConverter.build(schema)
+
+        obj = Model()
+        self.assertEqual(obj.name, ["Brazil"])
+
+        with self.assertRaises(ValueError):
+            obj.name = ["Argentina"]
+
+        with self.assertRaises(ValueError):
+            Model(name=["Argentina"])
+
     def test_null_type_parser(self):
         schema = {
             "title": "Test",
