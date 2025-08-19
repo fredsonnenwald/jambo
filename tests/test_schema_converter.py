@@ -205,6 +205,9 @@ class TestSchemaConverter(TestCase):
         )
 
         with self.assertRaises(ValueError):
+            model()
+
+        with self.assertRaises(ValueError):
             model(friends=[])
 
         with self.assertRaises(ValueError):
