@@ -97,7 +97,7 @@ class TestOneOfTypeParser(TestCase):
                                 "email": {"type": "string", "format": "email"}
                             },
                             "required": ["email"],
-                            "additionalProperties": False
+                            "additionalProperties": False,
                         },
                         {
                             "type": "object",
@@ -105,8 +105,8 @@ class TestOneOfTypeParser(TestCase):
                                 "phone": {"type": "string", "pattern": "^[0-9-]+$"}
                             },
                             "required": ["phone"],
-                            "additionalProperties": False
-                        }
+                            "additionalProperties": False,
+                        },
                     ]
                 },
             },
@@ -135,25 +135,23 @@ class TestOneOfTypeParser(TestCase):
                             "type": "object",
                             "properties": {
                                 "type": {"const": "cat"},
-                                "meows": {"type": "boolean"}
+                                "meows": {"type": "boolean"},
                             },
-                            "required": ["type", "meows"]
+                            "required": ["type", "meows"],
                         },
                         {
                             "type": "object",
                             "properties": {
                                 "type": {"const": "dog"},
-                                "barks": {"type": "boolean"}
+                                "barks": {"type": "boolean"},
                             },
-                            "required": ["type", "barks"]
-                        }
+                            "required": ["type", "barks"],
+                        },
                     ],
-                    "discriminator": {
-                        "propertyName": "type"
-                    }
+                    "discriminator": {"propertyName": "type"},
                 }
             },
-            "required": ["pet"]
+            "required": ["pet"],
         }
 
         Model = SchemaConverter.build(schema)
@@ -183,29 +181,33 @@ class TestOneOfTypeParser(TestCase):
                             "type": "object",
                             "properties": {
                                 "vehicle_type": {"const": "car"},
-                                "doors": {"type": "integer", "minimum": 2, "maximum": 4}
+                                "doors": {
+                                    "type": "integer",
+                                    "minimum": 2,
+                                    "maximum": 4,
+                                },
                             },
-                            "required": ["vehicle_type", "doors"]
+                            "required": ["vehicle_type", "doors"],
                         },
                         {
                             "type": "object",
                             "properties": {
                                 "vehicle_type": {"const": "motorcycle"},
-                                "engine_size": {"type": "number", "minimum": 125}
+                                "engine_size": {"type": "number", "minimum": 125},
                             },
-                            "required": ["vehicle_type", "engine_size"]
-                        }
+                            "required": ["vehicle_type", "engine_size"],
+                        },
                     ],
                     "discriminator": {
                         "propertyName": "vehicle_type",
                         "mapping": {
                             "car": "#/properties/vehicle/oneOf/0",
-                            "motorcycle": "#/properties/vehicle/oneOf/1"
-                        }
-                    }
+                            "motorcycle": "#/properties/vehicle/oneOf/1",
+                        },
+                    },
                 }
             },
-            "required": ["vehicle"]
+            "required": ["vehicle"],
         }
 
         Model = SchemaConverter.build(schema)
@@ -229,25 +231,23 @@ class TestOneOfTypeParser(TestCase):
                             "type": "object",
                             "properties": {
                                 "type": {"const": "circle"},
-                                "radius": {"type": "number", "minimum": 0}
+                                "radius": {"type": "number", "minimum": 0},
                             },
-                            "required": ["type", "radius"]
+                            "required": ["type", "radius"],
                         },
                         {
                             "type": "object",
                             "properties": {
                                 "type": {"const": "square"},
-                                "side": {"type": "number", "minimum": 0}
+                                "side": {"type": "number", "minimum": 0},
                             },
-                            "required": ["type", "side"]
-                        }
+                            "required": ["type", "side"],
+                        },
                     ],
-                    "discriminator": {
-                        "propertyName": "type"
-                    }
+                    "discriminator": {"propertyName": "type"},
                 }
             },
-            "required": ["shape"]
+            "required": ["shape"],
         }
 
         Model = SchemaConverter.build(schema)
@@ -283,9 +283,7 @@ class TestOneOfTypeParser(TestCase):
             "title": "Test",
             "type": "object",
             "properties": {
-                "value": {
-                    "oneOf": None
-                },
+                "value": {"oneOf": None},
             },
         }
 
@@ -302,7 +300,7 @@ class TestOneOfTypeParser(TestCase):
                         {"type": "string"},
                         {"type": "integer"},
                     ],
-                    "default": "test"
+                    "default": "test",
                 },
             },
         }
@@ -321,7 +319,7 @@ class TestOneOfTypeParser(TestCase):
                         {"type": "string", "minLength": 5},
                         {"type": "integer", "minimum": 10},
                     ],
-                    "default": "hi"
+                    "default": "hi",
                 },
             },
         }
@@ -340,20 +338,20 @@ class TestOneOfTypeParser(TestCase):
                             "type": "object",
                             "properties": {
                                 "type": {"const": "a"},
-                                "value": {"type": "string"}
-                            }
+                                "value": {"type": "string"},
+                            },
                         },
                         {
                             "type": "object",
                             "properties": {
                                 "type": {"const": "b"},
-                                "value": {"type": "integer"}
-                            }
-                        }
+                                "value": {"type": "integer"},
+                            },
+                        },
                     ],
-                    "discriminator": {}  # discriminator without propertyName
+                    "discriminator": {},  # discriminator without propertyName
                 }
-            }
+            },
         }
 
         Model = SchemaConverter.build(schema)
@@ -383,23 +381,18 @@ class TestOneOfTypeParser(TestCase):
             "properties": {
                 "value": {
                     "oneOf": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "data": {"type": "string"}
-                            }
-                        },
+                        {"type": "object", "properties": {"data": {"type": "string"}}},
                         {
                             "type": "object",
                             "properties": {
                                 "data": {"type": "string"},
-                                "optional": {"type": "string"}
-                            }
-                        }
+                                "optional": {"type": "string"},
+                            },
+                        },
                     ],
-                    "discriminator": {}  # discriminator without propertyName
+                    "discriminator": {},  # discriminator without propertyName
                 }
-            }
+            },
         }
 
         Model = SchemaConverter.build(schema)
@@ -419,11 +412,11 @@ class TestOneOfTypeParser(TestCase):
                     "value": {
                         "oneOf": [
                             {"type": "string", "maxLength": 6},
-                            {"type": "string", "minLength": 4}
+                            {"type": "string", "minLength": 4},
                         ]
                     }
                 },
-                "required": ["value"]
+                "required": ["value"],
             }
 
             Model = SchemaConverter.build(schema)
@@ -453,26 +446,24 @@ class TestOneOfTypeParser(TestCase):
                                 "type": "object",
                                 "properties": {
                                     "type": {"const": "circle"},
-                                    "radius": {"type": "number", "minimum": 0}
+                                    "radius": {"type": "number", "minimum": 0},
                                 },
-                                "required": ["type", "radius"]
+                                "required": ["type", "radius"],
                             },
                             {
                                 "type": "object",
                                 "properties": {
                                     "type": {"const": "rectangle"},
                                     "width": {"type": "number", "minimum": 0},
-                                    "height": {"type": "number", "minimum": 0}
+                                    "height": {"type": "number", "minimum": 0},
                                 },
-                                "required": ["type", "width", "height"]
-                            }
+                                "required": ["type", "width", "height"],
+                            },
                         ],
-                        "discriminator": {
-                            "propertyName": "type"
-                        }
+                        "discriminator": {"propertyName": "type"},
                     }
                 },
-                "required": ["shape"]
+                "required": ["shape"],
             }
 
             Model = SchemaConverter.build(schema)

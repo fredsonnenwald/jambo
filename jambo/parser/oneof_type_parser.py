@@ -1,8 +1,8 @@
 from jambo.parser._type_parser import GenericTypeParser
 from jambo.types.type_parser_options import TypeParserOptions
 
-from pydantic import Field, BeforeValidator, TypeAdapter, ValidationError
-from typing_extensions import Annotated, Union, Unpack, Any
+from pydantic import BeforeValidator, Field, TypeAdapter, ValidationError
+from typing_extensions import Annotated, Any, Union, Unpack
 
 
 class OneOfTypeParser(GenericTypeParser):
@@ -11,7 +11,7 @@ class OneOfTypeParser(GenericTypeParser):
     json_schema_type = "oneOf"
 
     def from_properties_impl(
-            self, name, properties, **kwargs: Unpack[TypeParserOptions]
+        self, name, properties, **kwargs: Unpack[TypeParserOptions]
     ):
         if "oneOf" not in properties:
             raise ValueError(f"Invalid JSON Schema: {properties}")
@@ -42,7 +42,9 @@ class OneOfTypeParser(GenericTypeParser):
         if discriminator and isinstance(discriminator, dict):
             property_name = discriminator.get("propertyName")
             if property_name:
-                validated_type = Annotated[union_type, Field(discriminator=property_name)]
+                validated_type = Annotated[
+                    union_type, Field(discriminator=property_name)
+                ]
                 return validated_type, mapped_properties
 
         def validate_one_of(value: Any) -> Any:
@@ -59,11 +61,34 @@ class OneOfTypeParser(GenericTypeParser):
                     continue
 
             if matched_count == 0:
-                raise ValueError(f"Value does not match any of the oneOf schemas")
+                raise ValueError("Value does not match any of the oneOf schemas")
             elif matched_count > 1:
-                raise ValueError(f"Value matches multiple oneOf schemas, exactly one expected")
+                raise ValueError(
+                    "Value matches multiple oneOf schemas, exactly one expected"
+                )
 
             return value
 
         validated_type = Annotated[union_type, BeforeValidator(validate_one_of)]
         return validated_type, mapped_properties
+
+    @staticmethod
+    def _has_meaningful_constraints(field_props):
+        """
+        Check if field properties contain meaningful constraints that require Field wrapping.
+        Returns False if:
+        - field_props is None or empty
+        - field_props only contains {'default': None}
+        Returns True if:
+        - field_props contains a non-None default value
+        - field_props contains other constraint properties (min_length, max_length, pattern, etc.)
+        """
+        if not field_props:
+            return False
+
+        # If only default is set and it's None, no meaningful constraints
+        if field_props == {"default": None}:
+            return False
+
+        # If there are multiple properties or non-None default, that's meaningful
+        return True

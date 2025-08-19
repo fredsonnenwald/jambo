@@ -16,6 +16,7 @@ class StringTypeParser(GenericTypeParser):
         "maxLength": "max_length",
         "minLength": "min_length",
         "pattern": "pattern",
+        "format": "format",
     }
 
     format_type_mapping = {
@@ -37,9 +38,7 @@ class StringTypeParser(GenericTypeParser):
     def from_properties_impl(
         self, name, properties, **kwargs: Unpack[TypeParserOptions]
     ):
-        mapped_properties = self.mappings_properties_builder(
-            properties, **kwargs
-        )
+        mapped_properties = self.mappings_properties_builder(properties, **kwargs)
 
         format_type = properties.get("format")
         if not format_type:
@@ -51,9 +50,5 @@ class StringTypeParser(GenericTypeParser):
         mapped_type = self.format_type_mapping[format_type]
         if format_type in self.format_pattern_mapping:
             mapped_properties["pattern"] = self.format_pattern_mapping[format_type]
-
-        if "json_schema_extra" not in mapped_properties:
-            mapped_properties["json_schema_extra"] = {}
-        mapped_properties["json_schema_extra"]["format"] = format_type
 
         return mapped_type, mapped_properties
