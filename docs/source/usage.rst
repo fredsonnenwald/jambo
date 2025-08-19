@@ -45,6 +45,5 @@ For more complex schemas and types see our documentation on
     usage.reference
     usage.allof
     usage.anyof
-    usage.oneof
     usage.enum
     usage.const
