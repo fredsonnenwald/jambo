@@ -4,7 +4,7 @@ from jambo.types.type_parser_options import TypeParserOptions
 from pydantic import EmailStr, HttpUrl, IPvAnyAddress
 from typing_extensions import Unpack
 
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 
 
 class StringTypeParser(GenericTypeParser):
@@ -28,6 +28,7 @@ class StringTypeParser(GenericTypeParser):
         "date": date,
         "time": time,
         "date-time": datetime,
+        "duration": timedelta,
     }
 
     format_pattern_mapping = {
