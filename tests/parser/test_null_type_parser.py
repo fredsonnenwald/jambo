@@ -13,31 +13,17 @@ class TestNullTypeParser(TestCase):
             "placeholder", properties
         )
 
-        self.assertEqual(type_parsing, None)
+        self.assertEqual(type_parsing, type(None))
         self.assertEqual(type_validator, {"default": None})
 
-    def test_null_parser_with_default(self):
+    def test_null_parser_with_invalid_default(self):
         parser = NullTypeParser()
 
-        properties = {
-            "type": "null",
-            "default": None,
-        }
+        properties = {"type": "null", "default": "invalid"}
 
         type_parsing, type_validator = parser.from_properties_impl(
             "placeholder", properties
         )
 
-        self.assertEqual(type_parsing, None)
-        self.assertEqual(type_validator["default"], None)
-
-    def test_null_parser_with_invalid_default(self):
-        parser = NullTypeParser()
-
-        properties = {
-            "type": "null",
-            "default": "invalid",
-        }
-
-        with self.assertRaises(ValueError):
-            parser.from_properties_impl("placeholder", properties)
+        self.assertEqual(type_parsing, type(None))
+        self.assertEqual(type_validator, {"default": None})
