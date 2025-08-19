@@ -35,7 +35,7 @@ class ArrayTypeParser(GenericTypeParser):
 
         mapped_properties = self.mappings_properties_builder(properties, **kwargs)
 
-        if "default" not in mapped_properties:
+        if "default" in properties or not kwargs.get("required", False):
             mapped_properties["default_factory"] = self._build_default_factory(
                 properties.get("default"), wrapper_type
             )
