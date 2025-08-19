@@ -181,7 +181,7 @@ class TestSchemaConverter(TestCase):
 
         self.assertEqual(model(is_active="true").is_active, True)
 
-    def test_validation_list(self):
+    def test_validation_list_with_valid_items(self):
         schema = {
             "title": "Person",
             "description": "A person",
@@ -210,6 +210,46 @@ class TestSchemaConverter(TestCase):
         with self.assertRaises(ValueError):
             model(friends=["John", "Jane", "Invalid"])
 
+    def test_validation_list_with_missing_items(self):
+        model = SchemaConverter.build(
+            {
+                "title": "Person",
+                "description": "A person",
+                "type": "object",
+                "properties": {
+                    "friends": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "minItems": 1,
+                        "maxItems": 2,
+                        "default": ["John", "Jane"],
+                    },
+                },
+            }
+        )
+
+        self.assertEqual(model().friends, ["John", "Jane"])
+
+        model = SchemaConverter.build(
+            {
+                "title": "Person",
+                "description": "A person",
+                "type": "object",
+                "properties": {
+                    "friends": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "minItems": 1,
+                        "maxItems": 2,
+                    },
+                },
+                "required": ["friends"],
+            }
+        )
+
+        with self.assertRaises(ValueError):
+            model()
+
     def test_validation_object(self):
         schema = {
             "title": "Person",
@@ -234,6 +274,9 @@ class TestSchemaConverter(TestCase):
 
         self.assertEqual(obj.address.street, "123 Main St")
         self.assertEqual(obj.address.city, "Springfield")
+
+        with self.assertRaises(ValueError):
+            model()
 
     def test_default_for_string(self):
         schema = {

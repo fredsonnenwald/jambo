@@ -59,7 +59,7 @@ class ObjectTypeParser(GenericTypeParser):
 
         fields = {}
         for name, prop in properties.items():
-            sub_property = kwargs.copy()
+            sub_property: TypeParserOptions = kwargs.copy()
             sub_property["required"] = name in required_keys
 
             parsed_type, parsed_properties = GenericTypeParser.type_from_properties(
