@@ -38,9 +38,7 @@ class StringTypeParser(GenericTypeParser):
     def from_properties_impl(
         self, name, properties, **kwargs: Unpack[TypeParserOptions]
     ):
-        mapped_properties = self.mappings_properties_builder(
-            properties, **kwargs
-        )
+        mapped_properties = self.mappings_properties_builder(properties, **kwargs)
 
         format_type = properties.get("format")
         if not format_type:
