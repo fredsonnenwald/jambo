@@ -1,9 +1,35 @@
 from jambo import SchemaConverter
+from jambo.parser.oneof_type_parser import OneOfTypeParser
 
 from unittest import TestCase
 
 
 class TestOneOfTypeParser(TestCase):
+    def test_oneof_raises_on_invalid_property(self):
+        with self.assertRaises(ValueError):
+            OneOfTypeParser().from_properties_impl(
+                "test_field",
+                {
+                    # Invalid schema, should have property "oneOf"
+                },
+                required=True,
+                context={},
+                ref_cache={},
+            )
+
+        with self.assertRaises(ValueError):
+            SchemaConverter.build(
+                {
+                    "title": "Test",
+                    "type": "object",
+                    "properties": {
+                        "value": {
+                            "oneOf": [],  # should throw because oneOf requires at least one schema
+                        }
+                    },
+                }
+            )
+
     def test_oneof_basic_integer_and_string(self):
         schema = {
             "title": "Person",
@@ -328,35 +354,66 @@ class TestOneOfTypeParser(TestCase):
             SchemaConverter.build(schema)
 
     def test_oneof_discriminator_without_property_name(self):
-        schema = {
-            "title": "Test",
-            "type": "object",
-            "properties": {
-                "value": {
-                    "oneOf": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "type": {"const": "a"},
-                                "value": {"type": "string"},
-                            },
-                        },
-                        {
-                            "type": "object",
-                            "properties": {
-                                "type": {"const": "b"},
-                                "value": {"type": "integer"},
-                            },
-                        },
-                    ],
-                    "discriminator": {},  # discriminator without propertyName
-                }
-            },
-        }
-
         # Should throw because the spec determines propertyName is required for discriminator
         with self.assertRaises(ValueError):
-            SchemaConverter.build(schema)
+            SchemaConverter.build(
+                {
+                    "title": "Test",
+                    "type": "object",
+                    "properties": {
+                        "value": {
+                            "oneOf": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {"const": "a"},
+                                        "value": {"type": "string"},
+                                    },
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {"const": "b"},
+                                        "value": {"type": "integer"},
+                                    },
+                                },
+                            ],
+                            "discriminator": {},  # discriminator without propertyName
+                        }
+                    },
+                }
+            )
+
+    def test_oneof_discriminator_with_invalid_discriminator(self):
+        # Should throw because a valid discriminator is required
+        with self.assertRaises(ValueError):
+            SchemaConverter.build(
+                {
+                    "title": "Test",
+                    "type": "object",
+                    "properties": {
+                        "value": {
+                            "oneOf": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {"const": "a"},
+                                        "value": {"type": "string"},
+                                    },
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {"const": "b"},
+                                        "value": {"type": "integer"},
+                                    },
+                                },
+                            ],
+                            "discriminator": "invalid",  # discriminator without propertyName
+                        }
+                    },
+                }
+            )
 
     def test_oneof_overlapping_strings_from_docs(self):
         """Test the overlapping strings example from documentation"""
