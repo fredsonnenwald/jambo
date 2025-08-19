@@ -37,6 +37,7 @@ Created to simplifying the process of dynamically generating Pydantic models for
     - nested objects
     - allOf
     - anyOf
+    - oneOf
     - ref
     - enum
     - const
