@@ -700,3 +700,23 @@ class TestSchemaConverter(TestCase):
 
         with self.assertRaises(ValueError):
             Model(name="Canada")
+
+    def test_null_type_parser(self):
+        schema = {
+            "title": "Test",
+            "type": "object",
+            "properties": {
+                "a_thing": {"type": "null"},
+            },
+        }
+
+        Model = SchemaConverter.build(schema)
+
+        obj = Model()
+        self.assertIsNone(obj.a_thing)
+
+        obj = Model(a_thing=None)
+        self.assertIsNone(obj.a_thing)
+
+        with self.assertRaises(ValueError):
+            Model(a_thing="not none")
