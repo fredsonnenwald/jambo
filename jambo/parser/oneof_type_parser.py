@@ -1,8 +1,8 @@
 from jambo.parser._type_parser import GenericTypeParser
 from jambo.types.type_parser_options import TypeParserOptions
 
-from pydantic import BeforeValidator, Field, TypeAdapter, ValidationError
-from typing_extensions import Annotated, Any, Union, Unpack
+from pydantic import BaseModel, BeforeValidator, Field, TypeAdapter, ValidationError
+from typing_extensions import Annotated, Any, Union, Unpack, get_args
 
 
 class OneOfTypeParser(GenericTypeParser):
@@ -16,7 +16,7 @@ class OneOfTypeParser(GenericTypeParser):
         if "oneOf" not in properties:
             raise ValueError(f"Invalid JSON Schema: {properties}")
 
-        if not isinstance(properties["oneOf"], list):
+        if not isinstance(properties["oneOf"], list) or len(properties["oneOf"]) == 0:
             raise ValueError(f"Invalid JSON Schema: {properties['oneOf']}")
 
         mapped_properties = self.mappings_properties_builder(properties, **kwargs)
@@ -56,6 +56,16 @@ class OneOfTypeParser(GenericTypeParser):
         """
         if not isinstance(discriminator_prop, dict):
             raise ValueError("Discriminator must be a dictionary")
+
+        for field in subfield_types:
+            field_type, field_info = get_args(field)
+
+            if issubclass(field_type, BaseModel):
+                continue
+
+            raise ValueError(
+                "When using a discriminator, all subfield types must be of type 'object'."
+            )
 
         property_name = discriminator_prop.get("propertyName")
         if property_name is None or not isinstance(property_name, str):
