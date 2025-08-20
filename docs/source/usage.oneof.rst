@@ -109,4 +109,4 @@ Examples
 
 .. warning::
 
-    The discriminator feature is not officially in the JSON Schema specification, it was introduced by OpenAI. Use it with caution and ensure it fits your use case.
+    The discriminator feature is not officially in the JSON Schema specification, it was introduced by OpenAPI. Use it with caution and ensure it fits your use case.
