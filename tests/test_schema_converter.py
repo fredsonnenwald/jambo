@@ -1,9 +1,10 @@
 from jambo import SchemaConverter
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import AnyUrl, BaseModel
 
 from ipaddress import IPv4Address, IPv6Address
 from unittest import TestCase
+from uuid import UUID
 
 
 def is_pydantic_model(cls):
@@ -463,7 +464,7 @@ class TestSchemaConverter(TestCase):
         }
         model = SchemaConverter.build(schema)
         self.assertEqual(
-            model(website="https://example.com").website, HttpUrl("https://example.com")
+            model(website="https://example.com").website, AnyUrl("https://example.com")
         )
         with self.assertRaises(ValueError):
             model(website="invalid-uri")
@@ -492,6 +493,22 @@ class TestSchemaConverter(TestCase):
         )
         with self.assertRaises(ValueError):
             model(ip="invalid-ipv6")
+
+    def test_string_format_uuid(self):
+        schema = {
+            "title": "UUIDTest",
+            "type": "object",
+            "properties": {"id": {"type": "string", "format": "uuid"}},
+        }
+        model = SchemaConverter.build(schema)
+
+        self.assertEqual(
+            model(id="123e4567-e89b-12d3-a456-426614174000").id,
+            UUID("123e4567-e89b-12d3-a456-426614174000"),
+        )
+
+        with self.assertRaises(ValueError):
+            model(id="invalid-uuid")
 
     def test_string_format_hostname(self):
         schema = {

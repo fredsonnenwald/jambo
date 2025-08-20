@@ -1,9 +1,11 @@
 from jambo.parser import StringTypeParser
 
-from pydantic import EmailStr, HttpUrl, IPvAnyAddress
+from pydantic import AnyUrl, EmailStr
 
 from datetime import date, datetime, time, timedelta
+from ipaddress import IPv4Address, IPv6Address
 from unittest import TestCase
+from uuid import UUID
 
 
 class TestStringTypeParser(TestCase):
@@ -111,12 +113,14 @@ class TestStringTypeParser(TestCase):
 
         type_parsing, type_validator = parser.from_properties("placeholder", properties)
 
-        self.assertEqual(type_parsing, HttpUrl)
+        self.assertEqual(type_parsing, AnyUrl)
 
     def test_string_parser_with_ip_formats(self):
         parser = StringTypeParser()
 
-        for ip_format in ["ipv4", "ipv6"]:
+        formats = {"ipv4": IPv4Address, "ipv6": IPv6Address}
+
+        for ip_format, expected_type in formats.items():
             properties = {
                 "type": "string",
                 "format": ip_format,
@@ -126,7 +130,19 @@ class TestStringTypeParser(TestCase):
                 "placeholder", properties
             )
 
-            self.assertEqual(type_parsing, IPvAnyAddress)
+            self.assertEqual(type_parsing, expected_type)
+
+    def test_string_parser_with_uuid_format(self):
+        parser = StringTypeParser()
+
+        properties = {
+            "type": "string",
+            "format": "uuid",
+        }
+
+        type_parsing, type_validator = parser.from_properties("placeholder", properties)
+
+        self.assertEqual(type_parsing, UUID)
 
     def test_string_parser_with_time_format(self):
         parser = StringTypeParser()

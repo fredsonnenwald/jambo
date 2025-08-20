@@ -1,10 +1,12 @@
 from jambo.parser._type_parser import GenericTypeParser
 from jambo.types.type_parser_options import TypeParserOptions
 
-from pydantic import EmailStr, HttpUrl, IPvAnyAddress
+from pydantic import AnyUrl, EmailStr
 from typing_extensions import Unpack
 
 from datetime import date, datetime, time, timedelta
+from ipaddress import IPv4Address, IPv6Address
+from uuid import UUID
 
 
 class StringTypeParser(GenericTypeParser):
@@ -20,15 +22,22 @@ class StringTypeParser(GenericTypeParser):
     }
 
     format_type_mapping = {
-        "email": EmailStr,
-        "uri": HttpUrl,
-        "ipv4": IPvAnyAddress,
-        "ipv6": IPvAnyAddress,
-        "hostname": str,
+        # 7.3.1. Dates, Times, and Duration
         "date": date,
         "time": time,
         "date-time": datetime,
         "duration": timedelta,
+        # 7.3.2. Email Addresses
+        "email": EmailStr,
+        # 7.3.3. Hostnames
+        "hostname": str,
+        # 7.3.4. IP Addresses
+        "ipv4": IPv4Address,
+        "ipv6": IPv6Address,
+        # 7.3.5. Resource Identifiers
+        "uri": AnyUrl,
+        # "iri" # Not supported by pydantic and currently not supported by jambo
+        "uuid": UUID,
     }
 
     format_pattern_mapping = {
