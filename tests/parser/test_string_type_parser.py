@@ -5,6 +5,7 @@ from pydantic import AnyUrl, EmailStr
 from datetime import date, datetime, time, timedelta
 from ipaddress import IPv4Address, IPv6Address
 from unittest import TestCase
+from uuid import UUID
 
 
 class TestStringTypeParser(TestCase):
@@ -130,6 +131,18 @@ class TestStringTypeParser(TestCase):
             )
 
             self.assertEqual(type_parsing, expected_type)
+
+    def test_string_parser_with_uuid_format(self):
+        parser = StringTypeParser()
+
+        properties = {
+            "type": "string",
+            "format": "uuid",
+        }
+
+        type_parsing, type_validator = parser.from_properties("placeholder", properties)
+
+        self.assertEqual(type_parsing, UUID)
 
     def test_string_parser_with_time_format(self):
         parser = StringTypeParser()
