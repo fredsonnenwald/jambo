@@ -81,7 +81,7 @@ class TestEnumTypeParser(TestCase):
 
     def test_enum_type_parser_throws_invalid_enum_value(self):
         parser = EnumTypeParser()
-        
+
         schema = {
             "enum": ["value1", 42, dict()],
         }
