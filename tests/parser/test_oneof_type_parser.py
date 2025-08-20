@@ -196,6 +196,29 @@ class TestOneOfTypeParser(TestCase):
         with self.assertRaises(ValueError):
             Model(pet={"type": "bird", "flies": True})
 
+    def test_oneof_with_invalid_types(self):
+        with self.assertRaises(ValueError):
+            SchemaConverter.build(
+                {
+                    "title": "Pet",
+                    "type": "object",
+                    "properties": {
+                        "pet": {
+                            "oneOf": [
+                                {
+                                    "type": "number",
+                                },
+                                {
+                                    "type": "string",
+                                },
+                            ],
+                            "discriminator": {"propertyName": "type"},
+                        }
+                    },
+                    "required": ["pet"],
+                }
+            )
+
     def test_oneof_with_discriminator_mapping(self):
         schema = {
             "title": "Vehicle",
