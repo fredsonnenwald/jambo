@@ -34,9 +34,9 @@ class OneOfTypeParser(GenericTypeParser):
         subfield_types = [Annotated[t, Field(**v)] for t, v in sub_types]
 
         # Added with the understanding of discriminator are not in the JsonSchema Spec,
-        # they were added by OpenAI and not all implementations may support them,
+        # they were added by OpenAPI and not all implementations may support them,
         # and they do not always generate a model one-to-one to the Pydantic model
-        # TL;DR: Discriminators were added by OpenAI and not a Official JSON Schema feature
+        # TL;DR: Discriminators were added by OpenAPI and not a Official JSON Schema feature
         discriminator = properties.get("discriminator")
         if discriminator is not None:
             validated_type = self._build_type_one_of_with_discriminator(
