@@ -9,7 +9,7 @@ JSONSchemaType = Literal[
 
 
 JSONSchemaNativeTypes: tuple[type, ...] = (
-    str, 
+    str,
     int,
     float,
     bool,

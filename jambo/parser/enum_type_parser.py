@@ -21,9 +21,7 @@ class EnumTypeParser(GenericTypeParser):
         if not isinstance(enum_values, list):
             raise ValueError(f"Enum type {name} must have 'enum' as a list of values.")
 
-        if any(
-            not isinstance(value, JSONSchemaNativeTypes) for value in enum_values
-        ):
+        if any(not isinstance(value, JSONSchemaNativeTypes) for value in enum_values):
             raise ValueError(
                 f"Enum type {name} must have 'enum' values of allowed types: {JSONSchemaNativeTypes}."
             )
@@ -32,9 +30,7 @@ class EnumTypeParser(GenericTypeParser):
         enum_type = Enum(name, {str(value).upper(): value for value in enum_values})
         parsed_properties = self.mappings_properties_builder(properties, **kwargs)
 
-        if (
-            "default" in parsed_properties and parsed_properties["default"] is not None
-        ):            
+        if "default" in parsed_properties and parsed_properties["default"] is not None:
             parsed_properties["default"] = enum_type(parsed_properties["default"])
 
         return enum_type, parsed_properties
