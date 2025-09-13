@@ -25,7 +25,7 @@ class SchemaConverter:
 
         try:
             validator = validator_for(schema)
-            validator.check_schema(schema)
+            validator.check_schema(schema)  # type: ignore
         except SchemaError as e:
             raise ValueError(f"Invalid JSON Schema: {e}")
 
@@ -42,6 +42,7 @@ class SchemaConverter:
                     schema.get("required", []),
                     context=schema,
                     ref_cache=dict(),
+                    required=True,
                 )
 
             case "$ref":
@@ -50,6 +51,7 @@ class SchemaConverter:
                     schema,
                     context=schema,
                     ref_cache=dict(),
+                    required=True,
                 )
                 return parsed_model
             case _:
@@ -65,4 +67,8 @@ class SchemaConverter:
         if "$ref" in schema:
             return "$ref"
 
-        return schema.get("type", "undefined")
+        schema_type = schema.get("type")
+        if isinstance(schema_type, str):
+            return schema_type
+
+        raise ValueError("Schema must have a valid 'type' or '$ref' field.")

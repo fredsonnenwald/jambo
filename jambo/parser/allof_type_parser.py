@@ -1,7 +1,8 @@
 from jambo.parser._type_parser import GenericTypeParser
+from jambo.types.json_schema_type import JSONSchema
 from jambo.types.type_parser_options import TypeParserOptions
 
-from typing_extensions import Any, Unpack
+from typing_extensions import Unpack
 
 
 class AllOfTypeParser(GenericTypeParser):
@@ -10,7 +11,7 @@ class AllOfTypeParser(GenericTypeParser):
     json_schema_type = "allOf"
 
     def from_properties_impl(
-        self, name, properties, **kwargs: Unpack[TypeParserOptions]
+        self, name: str, properties: JSONSchema, **kwargs: Unpack[TypeParserOptions]
     ):
         sub_properties = properties.get("allOf", [])
 
@@ -29,12 +30,12 @@ class AllOfTypeParser(GenericTypeParser):
 
     @staticmethod
     def _get_type_parser(
-        sub_properties: list[dict[str, Any]],
+        sub_properties: list[JSONSchema],
     ) -> type[GenericTypeParser]:
         if not sub_properties:
             raise ValueError("Invalid JSON Schema: 'allOf' is empty.")
 
-        parsers = set(
+        parsers: set[type[GenericTypeParser]] = set(
             GenericTypeParser._get_impl(sub_property) for sub_property in sub_properties
         )
         if len(parsers) != 1:
@@ -44,17 +45,19 @@ class AllOfTypeParser(GenericTypeParser):
 
     @staticmethod
     def _rebuild_properties_from_subproperties(
-        sub_properties: list[dict[str, Any]],
-    ) -> dict[str, Any]:
-        properties = {}
+        sub_properties: list[JSONSchema],
+    ) -> JSONSchema:
+        properties: JSONSchema = {}
         for subProperty in sub_properties:
             for name, prop in subProperty.items():
                 if name not in properties:
-                    properties[name] = prop
+                    properties[name] = prop  # type: ignore
                 else:
                     # Merge properties if they exist in both sub-properties
-                    properties[name] = AllOfTypeParser._validate_prop(
-                        name, properties[name], prop
+                    properties[name] = AllOfTypeParser._validate_prop(  # type: ignore
+                        name,
+                        properties[name],  # type: ignore
+                        prop,
                     )
         return properties
 

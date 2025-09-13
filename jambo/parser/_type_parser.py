@@ -1,16 +1,16 @@
-from jambo.types.type_parser_options import TypeParserOptions
+from jambo.types.type_parser_options import JSONSchema, TypeParserOptions
 
 from pydantic import Field, TypeAdapter
-from typing_extensions import Annotated, Any, Generic, Self, TypeVar, Unpack
+from typing_extensions import Annotated, Any, ClassVar, Generic, Self, TypeVar, Unpack
 
 from abc import ABC, abstractmethod
 
 
-T = TypeVar("T")
+T = TypeVar("T", bound=type)
 
 
 class GenericTypeParser(ABC, Generic[T]):
-    json_schema_type: str = None
+    json_schema_type: ClassVar[str]
 
     type_mappings: dict[str, str] = {}
 
@@ -21,7 +21,7 @@ class GenericTypeParser(ABC, Generic[T]):
 
     @abstractmethod
     def from_properties_impl(
-        self, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
+        self, name: str, properties: JSONSchema, **kwargs: Unpack[TypeParserOptions]
     ) -> tuple[T, dict]:
         """
         Abstract method to convert properties to a type and its fields properties.
@@ -32,7 +32,7 @@ class GenericTypeParser(ABC, Generic[T]):
         """
 
     def from_properties(
-        self, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
+        self, name: str, properties: JSONSchema, **kwargs: Unpack[TypeParserOptions]
     ) -> tuple[T, dict]:
         """
         Converts properties to a type and its fields properties.
@@ -54,7 +54,7 @@ class GenericTypeParser(ABC, Generic[T]):
 
     @classmethod
     def type_from_properties(
-        cls, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
+        cls, name: str, properties: JSONSchema, **kwargs: Unpack[TypeParserOptions]
     ) -> tuple[type, dict]:
         """
         Factory method to fetch the appropriate type parser based on properties
@@ -69,14 +69,14 @@ class GenericTypeParser(ABC, Generic[T]):
         return parser().from_properties(name=name, properties=properties, **kwargs)
 
     @classmethod
-    def _get_impl(cls, properties: dict[str, Any]) -> type[Self]:
+    def _get_impl(cls, properties: JSONSchema) -> type[Self]:
         for subcls in cls.__subclasses__():
             schema_type, schema_value = subcls._get_schema_type()
 
             if schema_type not in properties:
                 continue
 
-            if schema_value is None or schema_value == properties[schema_type]:
+            if schema_value is None or schema_value == properties[schema_type]:  # type: ignore
                 return subcls
 
         raise ValueError("Unknown type")
@@ -108,7 +108,7 @@ class GenericTypeParser(ABC, Generic[T]):
         }
 
     @staticmethod
-    def _validate_default(field_type: type, field_prop: dict) -> bool:
+    def _validate_default(field_type: T, field_prop: dict) -> bool:
         value = field_prop.get("default")
 
         if value is None and field_prop.get("default_factory") is not None:
@@ -118,7 +118,7 @@ class GenericTypeParser(ABC, Generic[T]):
             return True
 
         try:
-            field = Annotated[field_type, Field(**field_prop)]
+            field = Annotated[field_type, Field(**field_prop)]  # type: ignore
             TypeAdapter(field).validate_python(value)
         except Exception as _:
             return False
