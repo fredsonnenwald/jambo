@@ -1,6 +1,6 @@
 from jambo.parser._type_parser import GenericTypeParser
 from jambo.types.json_schema_type import JSONSchemaNativeTypes
-from jambo.types.type_parser_options import TypeParserOptions
+from jambo.types.type_parser_options import JSONSchema, TypeParserOptions
 
 from typing_extensions import Unpack
 
@@ -11,7 +11,7 @@ class EnumTypeParser(GenericTypeParser):
     json_schema_type = "enum"
 
     def from_properties_impl(
-        self, name, properties, **kwargs: Unpack[TypeParserOptions]
+        self, name: str, properties: JSONSchema, **kwargs: Unpack[TypeParserOptions]
     ):
         if "enum" not in properties:
             raise ValueError(f"Enum type {name} must have 'enum' property defined.")
@@ -27,7 +27,7 @@ class EnumTypeParser(GenericTypeParser):
             )
 
         # Create a new Enum type dynamically
-        enum_type = Enum(name, {str(value).upper(): value for value in enum_values})
+        enum_type = Enum(name, {str(value).upper(): value for value in enum_values})  # type: ignore
         parsed_properties = self.mappings_properties_builder(properties, **kwargs)
 
         if "default" in parsed_properties and parsed_properties["default"] is not None:

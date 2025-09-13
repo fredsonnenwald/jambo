@@ -1,10 +1,11 @@
 from jambo.parser import GenericTypeParser
+from jambo.types.json_schema_type import JSONSchema
 from jambo.types.type_parser_options import TypeParserOptions
 
-from typing_extensions import Any, ForwardRef, Literal, TypeVar, Union, Unpack
+from typing_extensions import ForwardRef, Literal, Union, Unpack
 
 
-RefType = TypeVar("RefType", bound=Union[type, ForwardRef])
+RefType = Union[type, ForwardRef]
 
 RefStrategy = Literal["forward_ref", "def_ref"]
 
@@ -13,7 +14,7 @@ class RefTypeParser(GenericTypeParser):
     json_schema_type = "$ref"
 
     def from_properties_impl(
-        self, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
+        self, name: str, properties: JSONSchema, **kwargs: Unpack[TypeParserOptions]
     ) -> tuple[RefType, dict]:
         if "$ref" not in properties:
             raise ValueError(f"RefTypeParser: Missing $ref in properties for {name}")
@@ -41,19 +42,19 @@ class RefTypeParser(GenericTypeParser):
             # If the reference is either processing or already cached
             return ref_state, mapped_properties
 
-        ref_cache[ref_name] = self._parse_from_strategy(
-            ref_strategy, ref_name, ref_property, **kwargs
-        )
+        ref = self._parse_from_strategy(ref_strategy, ref_name, ref_property, **kwargs)
+        ref_cache[ref_name] = ref
 
-        return ref_cache[ref_name], mapped_properties
+        return ref, mapped_properties
 
     def _parse_from_strategy(
         self,
         ref_strategy: RefStrategy,
         ref_name: str,
-        ref_property: dict[str, Any],
+        ref_property: JSONSchema,
         **kwargs: Unpack[TypeParserOptions],
-    ):
+    ) -> RefType:
+        mapped_type: RefType
         match ref_strategy:
             case "forward_ref":
                 mapped_type = ForwardRef(ref_name)
@@ -69,7 +70,7 @@ class RefTypeParser(GenericTypeParser):
         return mapped_type
 
     def _get_ref_from_cache(
-        self, ref_name: str, ref_cache: dict[str, type]
+        self, ref_name: str, ref_cache: dict[str, ForwardRef | type | None]
     ) -> RefType | type | None:
         try:
             ref_state = ref_cache[ref_name]
@@ -84,10 +85,12 @@ class RefTypeParser(GenericTypeParser):
             # If the reference is not in the cache, we will set it to None
             ref_cache[ref_name] = None
 
+        return None
+
     def _examine_ref_strategy(
-        self, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
-    ) -> tuple[RefStrategy, str, dict] | None:
-        if properties["$ref"] == "#":
+        self, name: str, properties: JSONSchema, **kwargs: Unpack[TypeParserOptions]
+    ) -> tuple[RefStrategy, str, JSONSchema]:
+        if properties.get("$ref") == "#":
             ref_name = kwargs["context"].get("title")
             if ref_name is None:
                 raise ValueError(
@@ -95,7 +98,7 @@ class RefTypeParser(GenericTypeParser):
                 )
             return "forward_ref", ref_name, {}
 
-        if properties["$ref"].startswith("#/$defs/"):
+        if properties.get("$ref", "").startswith("#/$defs/"):
             target_name, target_property = self._extract_target_ref(
                 name, properties, **kwargs
             )
@@ -106,8 +109,8 @@ class RefTypeParser(GenericTypeParser):
         )
 
     def _extract_target_ref(
-        self, name: str, properties: dict[str, Any], **kwargs: Unpack[TypeParserOptions]
-    ) -> tuple[str, dict]:
+        self, name: str, properties: JSONSchema, **kwargs: Unpack[TypeParserOptions]
+    ) -> tuple[str, JSONSchema]:
         target_name = None
         target_property = kwargs["context"]
         for prop_name in properties["$ref"].split("/")[1:]:
@@ -117,9 +120,9 @@ class RefTypeParser(GenericTypeParser):
                     " properties for $ref {properties['$ref']}"
                 )
             target_name = prop_name
-            target_property = target_property[prop_name]
+            target_property = target_property[prop_name]  # type: ignore
 
-        if target_name is None or target_property is None:
+        if not isinstance(target_name, str) or target_property is None:
             raise ValueError(f"RefTypeParser: Invalid $ref {properties['$ref']}")
 
         return target_name, target_property

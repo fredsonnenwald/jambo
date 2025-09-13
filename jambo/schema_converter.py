@@ -25,7 +25,7 @@ class SchemaConverter:
 
         try:
             validator = validator_for(schema)
-            validator.check_schema(schema)
+            validator.check_schema(schema)  # type: ignore
         except SchemaError as e:
             raise ValueError(f"Invalid JSON Schema: {e}")
 
@@ -38,10 +38,11 @@ class SchemaConverter:
             case "object":
                 return ObjectTypeParser.to_model(
                     schema["title"],
-                    schema["properties"],
+                    schema.get("properties", {}),
                     schema.get("required", []),
                     context=schema,
                     ref_cache=dict(),
+                    required=True,
                 )
 
             case "$ref":
@@ -50,13 +51,14 @@ class SchemaConverter:
                     schema,
                     context=schema,
                     ref_cache=dict(),
+                    required=True,
                 )
                 return parsed_model
             case _:
                 raise TypeError(f"Unsupported schema type: {schema_type}")
 
     @staticmethod
-    def _get_schema_type(schema: JSONSchema) -> str:
+    def _get_schema_type(schema: JSONSchema) -> str | None:
         """
         Returns the type of the schema.
         :param schema: The JSON Schema to check.
@@ -65,4 +67,4 @@ class SchemaConverter:
         if "$ref" in schema:
             return "$ref"
 
-        return schema.get("type", "undefined")
+        return schema.get("type")

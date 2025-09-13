@@ -5,6 +5,9 @@ from pydantic import BaseModel, BeforeValidator, Field, TypeAdapter, ValidationE
 from typing_extensions import Annotated, Any, Union, Unpack, get_args
 
 
+Annotation = Annotated[Any, ...]
+
+
 class OneOfTypeParser(GenericTypeParser):
     mapped_type = Union
 
@@ -49,8 +52,8 @@ class OneOfTypeParser(GenericTypeParser):
 
     @staticmethod
     def _build_type_one_of_with_discriminator(
-        subfield_types: list[Annotated], discriminator_prop: dict
-    ) -> Annotated:
+        subfield_types: list[Annotation], discriminator_prop: dict
+    ) -> Annotation:
         """
         Build a type with a discriminator.
         """
@@ -74,7 +77,7 @@ class OneOfTypeParser(GenericTypeParser):
         return Annotated[Union[(*subfield_types,)], Field(discriminator=property_name)]
 
     @staticmethod
-    def _build_type_one_of_with_func(subfield_types: list[Annotated]) -> Annotated:
+    def _build_type_one_of_with_func(subfield_types: list[Annotation]) -> Annotation:
         """
         Build a type with a validation function for the oneOf constraint.
         """

@@ -26,6 +26,20 @@ class TestSchemaConverter(TestCase):
         with self.assertRaises(ValueError):
             SchemaConverter.build(schema)
 
+    def test_invalid_schema_type(self):
+        schema = {
+            "title": 1,
+            "description": "A person",
+            "type": 1,
+            "properties": {
+                "name": {"type": "string"},
+                "age": {"type": "integer"},
+            },
+        }
+
+        with self.assertRaises(ValueError):
+            SchemaConverter.build(schema)
+
     def test_build_expects_title(self):
         schema = {
             "description": "A person",
