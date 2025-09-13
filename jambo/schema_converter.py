@@ -38,7 +38,7 @@ class SchemaConverter:
             case "object":
                 return ObjectTypeParser.to_model(
                     schema["title"],
-                    schema["properties"],
+                    schema.get("properties", {}),
                     schema.get("required", []),
                     context=schema,
                     ref_cache=dict(),
@@ -58,7 +58,7 @@ class SchemaConverter:
                 raise TypeError(f"Unsupported schema type: {schema_type}")
 
     @staticmethod
-    def _get_schema_type(schema: JSONSchema) -> str:
+    def _get_schema_type(schema: JSONSchema) -> str | None:
         """
         Returns the type of the schema.
         :param schema: The JSON Schema to check.
@@ -67,8 +67,4 @@ class SchemaConverter:
         if "$ref" in schema:
             return "$ref"
 
-        schema_type = schema.get("type")
-        if isinstance(schema_type, str):
-            return schema_type
-
-        raise ValueError("Schema must have a valid 'type' or '$ref' field.")
+        return schema.get("type")
