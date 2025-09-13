@@ -1,5 +1,6 @@
+from jambo.exceptions import InvalidSchemaException, UnsupportedSchemaException
 from jambo.parser import ObjectTypeParser, RefTypeParser
-from jambo.types.json_schema_type import JSONSchema
+from jambo.types import JSONSchema
 
 from jsonschema.exceptions import SchemaError
 from jsonschema.validators import validator_for
@@ -26,11 +27,15 @@ class SchemaConverter:
         try:
             validator = validator_for(schema)
             validator.check_schema(schema)  # type: ignore
-        except SchemaError as e:
-            raise ValueError(f"Invalid JSON Schema: {e}")
+        except SchemaError as err:
+            raise InvalidSchemaException(
+                "Validation of JSON Schema failed.", cause=err
+            ) from err
 
         if "title" not in schema:
-            raise ValueError("JSON Schema must have a title.")
+            raise InvalidSchemaException(
+                "Schema must have a title.", invalid_field="title"
+            )
 
         schema_type = SchemaConverter._get_schema_type(schema)
 
@@ -55,7 +60,13 @@ class SchemaConverter:
                 )
                 return parsed_model
             case _:
-                raise TypeError(f"Unsupported schema type: {schema_type}")
+                unsupported_type = (
+                    f"type:{schema_type}" if schema_type else "missing type"
+                )
+                raise UnsupportedSchemaException(
+                    "Only object and $ref schema types are supported.",
+                    unsupported_field=unsupported_type,
+                )
 
     @staticmethod
     def _get_schema_type(schema: JSONSchema) -> str | None:
