@@ -60,7 +60,7 @@ class TestSchemaConverter(TestCase):
             "type": "string",
         }
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             SchemaConverter.build(schema)
 
     def test_is_invalid_field(self):
