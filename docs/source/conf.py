@@ -18,6 +18,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    "sphinx_autodoc_typehints",  # <-- needed
 ]
 
 
@@ -35,3 +36,6 @@ html_static_path = ["_static"]
 # -- Options for autodoc -----------------------------------------------------
 add_module_names = False
 python_use_unqualified_type_names = True
+
+
+autodoc_typehints = "both"
