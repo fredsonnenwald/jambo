@@ -1,4 +1,7 @@
+from jambo.exceptions import InternalAssertionException, InvalidSchemaException
 from jambo.parser import ObjectTypeParser, RefTypeParser
+
+from pydantic import ValidationError
 
 from typing import ForwardRef
 from unittest import TestCase
@@ -16,7 +19,7 @@ class TestRefTypeParser(TestCase):
             "required": ["name", "age"],
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             RefTypeParser().from_properties(
                 "person",
                 properties,
@@ -40,7 +43,7 @@ class TestRefTypeParser(TestCase):
             },
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InternalAssertionException):
             RefTypeParser().from_properties(
                 "person",
                 properties,
@@ -63,7 +66,7 @@ class TestRefTypeParser(TestCase):
             },
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InternalAssertionException):
             RefTypeParser().from_properties(
                 "person",
                 properties,
@@ -77,7 +80,7 @@ class TestRefTypeParser(TestCase):
             "$ref": "https://example.com/schemas/person.json",
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             RefTypeParser().from_properties(
                 "person",
                 properties,
@@ -110,7 +113,7 @@ class TestRefTypeParser(TestCase):
             },
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             ObjectTypeParser().from_properties(
                 "person",
                 properties,
@@ -126,7 +129,7 @@ class TestRefTypeParser(TestCase):
             "$defs": {},
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             RefTypeParser().from_properties(
                 "person",
                 properties,
@@ -142,7 +145,7 @@ class TestRefTypeParser(TestCase):
             "$defs": {"person": None},
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             RefTypeParser().from_properties(
                 "person",
                 properties,
@@ -232,7 +235,7 @@ class TestRefTypeParser(TestCase):
             "required": ["name", "age"],
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             ObjectTypeParser().from_properties(
                 "person",
                 properties,
@@ -264,7 +267,7 @@ class TestRefTypeParser(TestCase):
         )
 
         # checks if when created via FowardRef the model is validated correctly.
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model(
                 name="John",
                 age=30,
@@ -421,7 +424,7 @@ class TestRefTypeParser(TestCase):
             },
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             ref_strategy, ref_name, ref_property = RefTypeParser()._parse_from_strategy(
                 "invalid_strategy",
                 "person",

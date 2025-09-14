@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser import IntTypeParser
 
 from unittest import TestCase
@@ -61,7 +62,7 @@ class TestIntTypeParser(TestCase):
             "multipleOf": 2,
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)
 
     def test_int_parser_with_default_invalid_maximum(self):
@@ -75,7 +76,7 @@ class TestIntTypeParser(TestCase):
             "multipleOf": 2,
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)
 
     def test_int_parser_with_default_invalid_minimum(self):
@@ -89,7 +90,7 @@ class TestIntTypeParser(TestCase):
             "multipleOf": 2,
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)
 
     def test_int_parser_with_default_invalid_exclusive_maximum(self):
@@ -103,7 +104,7 @@ class TestIntTypeParser(TestCase):
             "multipleOf": 2,
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)
 
     def test_int_parser_with_default_invalid_exclusive_minimum(self):
@@ -117,7 +118,7 @@ class TestIntTypeParser(TestCase):
             "multipleOf": 2,
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)
 
     def test_int_parser_with_default_invalid_multipleOf(self):
@@ -131,5 +132,5 @@ class TestIntTypeParser(TestCase):
             "multipleOf": 2,
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)

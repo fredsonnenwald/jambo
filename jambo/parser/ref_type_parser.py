@@ -1,4 +1,4 @@
-from jambo.exceptions import InvalidSchemaException
+from jambo.exceptions import InternalAssertionException, InvalidSchemaException
 from jambo.parser import GenericTypeParser
 from jambo.types.json_schema_type import JSONSchema
 from jambo.types.type_parser_options import TypeParserOptions
@@ -22,17 +22,15 @@ class RefTypeParser(GenericTypeParser):
                 f"Missing $ref in properties for {name}", invalid_field="$ref"
             )
 
-        context = kwargs.get("context")
-        if context is None:
-            raise InvalidSchemaException(
-                f"Missing `context` in properties for {name}", invalid_field="context"
+        if kwargs.get("context") is None:
+            raise InternalAssertionException(
+                "`context` must be provided in kwargs for RefTypeParser"
             )
 
         ref_cache = kwargs.get("ref_cache")
         if ref_cache is None:
-            raise InvalidSchemaException(
-                f"Missing `ref_cache` in properties for {name}",
-                invalid_field="ref_cache",
+            raise InternalAssertionException(
+                "`ref_cache` must be provided in kwargs for RefTypeParser"
             )
 
         mapped_properties = self.mappings_properties_builder(properties, **kwargs)

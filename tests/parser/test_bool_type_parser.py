@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser import BooleanTypeParser
 
 from unittest import TestCase
@@ -39,5 +40,5 @@ class TestBoolTypeParser(TestCase):
             "default": "invalid",
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties_impl("placeholder", properties)

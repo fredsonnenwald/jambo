@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser import ConstTypeParser
 
 from typing_extensions import Annotated, Literal, get_args, get_origin
@@ -80,7 +81,7 @@ class TestConstTypeParser(TestCase):
         expected_const_value = "United States of America"
         properties = {"notConst": expected_const_value}
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(InvalidSchemaException) as context:
             parser.from_properties_impl("invalid_country", properties)
 
         self.assertIn(
@@ -93,7 +94,7 @@ class TestConstTypeParser(TestCase):
 
         properties = {"const": {}}
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(InvalidSchemaException) as context:
             parser.from_properties_impl("invalid_country", properties)
 
         self.assertIn(

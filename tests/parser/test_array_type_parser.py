@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser import ArrayTypeParser
 
 from typing_extensions import get_args
@@ -67,7 +68,7 @@ class TestArrayTypeParser(TestCase):
 
         properties = {"items": {"type": "string"}, "default": ["a", 1, "c"]}
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)
 
     def test_array_parser_with_invalid_default_type(self):
@@ -75,15 +76,15 @@ class TestArrayTypeParser(TestCase):
 
         properties = {"items": {"type": "string"}, "default": 000}
 
-        with self.assertRaises(ValueError):
-            parser.from_properties("placeholder", properties)
+        with self.assertRaises(InvalidSchemaException):
+            parser.from_properties("placeholder", properties=properties)
 
     def test_array_parser_with_invalid_default_min(self):
         parser = ArrayTypeParser()
 
         properties = {"items": {"type": "string"}, "default": ["a"], "minItems": 2}
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)
 
     def test_array_parser_with_invalid_default_max(self):
@@ -95,5 +96,5 @@ class TestArrayTypeParser(TestCase):
             "maxItems": 3,
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)
