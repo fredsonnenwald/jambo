@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser._type_parser import GenericTypeParser
 from jambo.types.type_parser_options import TypeParserOptions
 
@@ -17,10 +18,14 @@ class OneOfTypeParser(GenericTypeParser):
         self, name, properties, **kwargs: Unpack[TypeParserOptions]
     ):
         if "oneOf" not in properties:
-            raise ValueError(f"Invalid JSON Schema: {properties}")
+            raise InvalidSchemaException(
+                f"Invalid JSON Schema: {properties}", invalid_field="oneOf"
+            )
 
         if not isinstance(properties["oneOf"], list) or len(properties["oneOf"]) == 0:
-            raise ValueError(f"Invalid JSON Schema: {properties['oneOf']}")
+            raise InvalidSchemaException(
+                f"Invalid JSON Schema: {properties['oneOf']}", invalid_field="oneOf"
+            )
 
         mapped_properties = self.mappings_properties_builder(properties, **kwargs)
 
@@ -58,7 +63,9 @@ class OneOfTypeParser(GenericTypeParser):
         Build a type with a discriminator.
         """
         if not isinstance(discriminator_prop, dict):
-            raise ValueError("Discriminator must be a dictionary")
+            raise InvalidSchemaException(
+                "Discriminator must be a dictionary", invalid_field="discriminator"
+            )
 
         for field in subfield_types:
             field_type, field_info = get_args(field)
@@ -66,13 +73,17 @@ class OneOfTypeParser(GenericTypeParser):
             if issubclass(field_type, BaseModel):
                 continue
 
-            raise ValueError(
-                "When using a discriminator, all subfield types must be of type 'object'."
+            raise InvalidSchemaException(
+                "When using a discriminator, all subfield types must be of type 'object'.",
+                invalid_field="discriminator",
             )
 
         property_name = discriminator_prop.get("propertyName")
         if property_name is None or not isinstance(property_name, str):
-            raise ValueError("Discriminator must have a 'propertyName' key")
+            raise InvalidSchemaException(
+                "Discriminator must have a 'propertyName' key",
+                invalid_field="propertyName",
+            )
 
         return Annotated[Union[(*subfield_types,)], Field(discriminator=property_name)]
 

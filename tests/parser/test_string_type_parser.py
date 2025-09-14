@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser import StringTypeParser
 
 from pydantic import AnyUrl, EmailStr
@@ -62,7 +63,7 @@ class TestStringTypeParser(TestCase):
             "minLength": 5,
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)
 
     def test_string_parser_with_default_invalid_maxlength(self):
@@ -75,7 +76,7 @@ class TestStringTypeParser(TestCase):
             "minLength": 1,
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)
 
     def test_string_parser_with_default_invalid_minlength(self):
@@ -88,7 +89,7 @@ class TestStringTypeParser(TestCase):
             "minLength": 2,
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)
 
     def test_string_parser_with_email_format(self):
@@ -183,11 +184,12 @@ class TestStringTypeParser(TestCase):
             "format": "unsupported-format",
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(InvalidSchemaException) as context:
             parser.from_properties("placeholder", properties)
 
         self.assertEqual(
-            str(context.exception), "Unsupported string format: unsupported-format"
+            str(context.exception),
+            "Invalid JSON Schema: Unsupported string format: unsupported-format (invalid field: format)",
         )
 
     def test_string_parser_with_date_format(self):

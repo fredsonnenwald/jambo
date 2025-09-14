@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser import StringTypeParser
 from jambo.parser._type_parser import GenericTypeParser
 
@@ -17,5 +18,5 @@ class TestGenericTypeParser(TestCase):
         StringTypeParser.json_schema_type = "type:string"
 
     def test_get_impl_invalid_type(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             GenericTypeParser._get_impl({"type": "invalid_type"})

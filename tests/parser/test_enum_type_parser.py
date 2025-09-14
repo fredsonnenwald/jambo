@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser import EnumTypeParser
 
 from enum import Enum
@@ -10,7 +11,7 @@ class TestEnumTypeParser(TestCase):
 
         schema = {}
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parsed_type, parsed_properties = parser.from_properties_impl(
                 "TestEnum",
                 schema,
@@ -23,7 +24,7 @@ class TestEnumTypeParser(TestCase):
             "enum": "not_a_list",
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parsed_type, parsed_properties = parser.from_properties_impl(
                 "TestEnum",
                 schema,
@@ -86,5 +87,5 @@ class TestEnumTypeParser(TestCase):
             "enum": ["value1", 42, dict()],
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties_impl("TestEnum", schema)

@@ -1,6 +1,7 @@
 from jambo import SchemaConverter
+from jambo.exceptions import InvalidSchemaException, UnsupportedSchemaException
 
-from pydantic import AnyUrl, BaseModel
+from pydantic import AnyUrl, BaseModel, ValidationError
 
 from ipaddress import IPv4Address, IPv6Address
 from unittest import TestCase
@@ -23,7 +24,7 @@ class TestSchemaConverter(TestCase):
             },
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             SchemaConverter.build(schema)
 
     def test_invalid_schema_type(self):
@@ -37,7 +38,7 @@ class TestSchemaConverter(TestCase):
             },
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             SchemaConverter.build(schema)
 
     def test_build_expects_title(self):
@@ -50,7 +51,7 @@ class TestSchemaConverter(TestCase):
             },
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             SchemaConverter.build(schema)
 
     def test_build_expects_object(self):
@@ -60,7 +61,7 @@ class TestSchemaConverter(TestCase):
             "type": "string",
         }
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(UnsupportedSchemaException):
             SchemaConverter.build(schema)
 
     def test_is_invalid_field(self):
@@ -76,7 +77,7 @@ class TestSchemaConverter(TestCase):
             # 'required': ['name', 'age', 'is_active', 'friends', 'address'],
         }
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(InvalidSchemaException) as context:
             SchemaConverter.build(schema)
             self.assertTrue("Unknown type" in str(context.exception))
 
@@ -117,16 +118,16 @@ class TestSchemaConverter(TestCase):
 
         self.assertEqual(model(name="John", age=30).name, "John")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model(name=123, age=30, email="teste@hideyoshi.com")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model(name="John Invalid", age=45, email="teste@hideyoshi.com")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model(name="", age=45, email="teste@hideyoshi.com")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model(name="John", age=45, email="hideyoshi.com")
 
     def test_validation_integer(self):
@@ -148,10 +149,10 @@ class TestSchemaConverter(TestCase):
 
         self.assertEqual(model(age=30).age, 30)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model(age=-1)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model(age=121)
 
     def test_validation_float(self):
@@ -173,10 +174,10 @@ class TestSchemaConverter(TestCase):
 
         self.assertEqual(model(age=30).age, 30.0)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model(age=-1.0)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model(age=121.0)
 
     def test_validation_boolean(self):
@@ -219,10 +220,10 @@ class TestSchemaConverter(TestCase):
             model(friends=["John", "Jane", "John"]).friends, {"John", "Jane"}
         )
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model(friends=[])
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model(friends=["John", "Jane", "Invalid"])
 
     def test_validation_list_with_missing_items(self):
@@ -262,7 +263,7 @@ class TestSchemaConverter(TestCase):
             }
         )
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model()
 
     def test_validation_object(self):
@@ -290,7 +291,7 @@ class TestSchemaConverter(TestCase):
         self.assertEqual(obj.address.street, "123 Main St")
         self.assertEqual(obj.address.city, "Springfield")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model()
 
     def test_default_for_string(self):
@@ -329,7 +330,7 @@ class TestSchemaConverter(TestCase):
             "required": ["name"],
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             SchemaConverter.build(schema_max_length)
 
     def test_default_for_list(self):
@@ -421,10 +422,10 @@ class TestSchemaConverter(TestCase):
 
         self.assertEqual(obj.name, "J")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(name="John Invalid")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(name="")
 
     def test_any_of(self):
@@ -450,13 +451,13 @@ class TestSchemaConverter(TestCase):
         obj = Model(id="12345678901")
         self.assertEqual(obj.id, "12345678901")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(id="")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(id="12345678901234567890")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(id=11)
 
     def test_string_format_email(self):
@@ -465,9 +466,11 @@ class TestSchemaConverter(TestCase):
             "type": "object",
             "properties": {"email": {"type": "string", "format": "email"}},
         }
+
         model = SchemaConverter.build(schema)
         self.assertEqual(model(email="test@example.com").email, "test@example.com")
-        with self.assertRaises(ValueError):
+
+        with self.assertRaises(ValidationError):
             model(email="invalid-email")
 
     def test_string_format_uri(self):
@@ -476,11 +479,13 @@ class TestSchemaConverter(TestCase):
             "type": "object",
             "properties": {"website": {"type": "string", "format": "uri"}},
         }
+
         model = SchemaConverter.build(schema)
         self.assertEqual(
             model(website="https://example.com").website, AnyUrl("https://example.com")
         )
-        with self.assertRaises(ValueError):
+
+        with self.assertRaises(ValidationError):
             model(website="invalid-uri")
 
     def test_string_format_ipv4(self):
@@ -489,9 +494,11 @@ class TestSchemaConverter(TestCase):
             "type": "object",
             "properties": {"ip": {"type": "string", "format": "ipv4"}},
         }
+
         model = SchemaConverter.build(schema)
         self.assertEqual(model(ip="192.168.1.1").ip, IPv4Address("192.168.1.1"))
-        with self.assertRaises(ValueError):
+
+        with self.assertRaises(ValidationError):
             model(ip="256.256.256.256")
 
     def test_string_format_ipv6(self):
@@ -500,12 +507,14 @@ class TestSchemaConverter(TestCase):
             "type": "object",
             "properties": {"ip": {"type": "string", "format": "ipv6"}},
         }
+
         model = SchemaConverter.build(schema)
         self.assertEqual(
             model(ip="2001:0db8:85a3:0000:0000:8a2e:0370:7334").ip,
             IPv6Address("2001:0db8:85a3:0000:0000:8a2e:0370:7334"),
         )
-        with self.assertRaises(ValueError):
+
+        with self.assertRaises(ValidationError):
             model(ip="invalid-ipv6")
 
     def test_string_format_uuid(self):
@@ -514,6 +523,7 @@ class TestSchemaConverter(TestCase):
             "type": "object",
             "properties": {"id": {"type": "string", "format": "uuid"}},
         }
+
         model = SchemaConverter.build(schema)
 
         self.assertEqual(
@@ -521,7 +531,7 @@ class TestSchemaConverter(TestCase):
             UUID("123e4567-e89b-12d3-a456-426614174000"),
         )
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             model(id="invalid-uuid")
 
     def test_string_format_hostname(self):
@@ -530,9 +540,11 @@ class TestSchemaConverter(TestCase):
             "type": "object",
             "properties": {"hostname": {"type": "string", "format": "hostname"}},
         }
+
         model = SchemaConverter.build(schema)
         self.assertEqual(model(hostname="example.com").hostname, "example.com")
-        with self.assertRaises(ValueError):
+
+        with self.assertRaises(ValidationError):
             model(hostname="invalid..hostname")
 
     def test_string_format_datetime(self):
@@ -541,12 +553,14 @@ class TestSchemaConverter(TestCase):
             "type": "object",
             "properties": {"timestamp": {"type": "string", "format": "date-time"}},
         }
+
         model = SchemaConverter.build(schema)
         self.assertEqual(
             model(timestamp="2024-01-01T12:00:00Z").timestamp.isoformat(),
             "2024-01-01T12:00:00+00:00",
         )
-        with self.assertRaises(ValueError):
+
+        with self.assertRaises(ValidationError):
             model(timestamp="invalid-datetime")
 
     def test_string_format_time(self):
@@ -555,11 +569,13 @@ class TestSchemaConverter(TestCase):
             "type": "object",
             "properties": {"time": {"type": "string", "format": "time"}},
         }
+
         model = SchemaConverter.build(schema)
         self.assertEqual(
             model(time="20:20:39+00:00").time.isoformat(), "20:20:39+00:00"
         )
-        with self.assertRaises(ValueError):
+
+        with self.assertRaises(ValidationError):
             model(time="25:00:00")
 
     def test_string_format_unsupported(self):
@@ -568,7 +584,8 @@ class TestSchemaConverter(TestCase):
             "type": "object",
             "properties": {"field": {"type": "string", "format": "unsupported"}},
         }
-        with self.assertRaises(ValueError):
+
+        with self.assertRaises(InvalidSchemaException):
             SchemaConverter.build(schema)
 
     def test_ref_with_root_ref(self):
@@ -726,10 +743,10 @@ class TestSchemaConverter(TestCase):
         obj = Model()
         self.assertEqual(obj.name, "United States of America")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             obj.name = "Canada"
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(name="Canada")
 
     def test_const_type_parser_with_non_hashable_value(self):
@@ -749,10 +766,10 @@ class TestSchemaConverter(TestCase):
         obj = Model()
         self.assertEqual(obj.name, ["Brazil"])
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             obj.name = ["Argentina"]
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(name=["Argentina"])
 
     def test_null_type_parser(self):
@@ -772,5 +789,5 @@ class TestSchemaConverter(TestCase):
         obj = Model(a_thing=None)
         self.assertIsNone(obj.a_thing)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(a_thing="not none")

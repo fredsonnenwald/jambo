@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser._type_parser import GenericTypeParser
 from jambo.types.json_schema_type import JSONSchema
 from jambo.types.type_parser_options import TypeParserOptions
@@ -33,13 +34,18 @@ class AllOfTypeParser(GenericTypeParser):
         sub_properties: list[JSONSchema],
     ) -> type[GenericTypeParser]:
         if not sub_properties:
-            raise ValueError("Invalid JSON Schema: 'allOf' is empty.")
+            raise InvalidSchemaException(
+                "'allOf' must contain at least one schema", invalid_field="allOf"
+            )
 
         parsers: set[type[GenericTypeParser]] = set(
             GenericTypeParser._get_impl(sub_property) for sub_property in sub_properties
         )
         if len(parsers) != 1:
-            raise ValueError("Invalid JSON Schema: allOf types do not match.")
+            raise InvalidSchemaException(
+                "All sub-schemas in 'allOf' must resolve to the same type",
+                invalid_field="allOf",
+            )
 
         return parsers.pop()
 
@@ -68,8 +74,8 @@ class AllOfTypeParser(GenericTypeParser):
 
         if prop_name == "default":
             if old_value != new_value:
-                raise ValueError(
-                    f"Invalid JSON Schema: conflicting defaults for '{prop_name}'"
+                raise InvalidSchemaException(
+                    f"Conflicting defaults for '{prop_name}'", invalid_field=prop_name
                 )
             return old_value
 

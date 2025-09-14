@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser._type_parser import GenericTypeParser
 from jambo.types.type_parser_options import TypeParserOptions
 
@@ -14,10 +15,15 @@ class AnyOfTypeParser(GenericTypeParser):
         self, name, properties, **kwargs: Unpack[TypeParserOptions]
     ):
         if "anyOf" not in properties:
-            raise ValueError(f"Invalid JSON Schema: {properties}")
+            raise InvalidSchemaException(
+                f"AnyOf type {name} must have 'anyOf' property defined.",
+                invalid_field="anyOf",
+            )
 
         if not isinstance(properties["anyOf"], list):
-            raise ValueError(f"Invalid JSON Schema: {properties['anyOf']}")
+            raise InvalidSchemaException(
+                "AnyOf must be a list of types.", invalid_field="anyOf"
+            )
 
         mapped_properties = self.mappings_properties_builder(properties, **kwargs)
 

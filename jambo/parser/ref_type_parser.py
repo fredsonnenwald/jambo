@@ -1,3 +1,4 @@
+from jambo.exceptions import InternalAssertionException, InvalidSchemaException
 from jambo.parser import GenericTypeParser
 from jambo.types.json_schema_type import JSONSchema
 from jambo.types.type_parser_options import TypeParserOptions
@@ -17,18 +18,19 @@ class RefTypeParser(GenericTypeParser):
         self, name: str, properties: JSONSchema, **kwargs: Unpack[TypeParserOptions]
     ) -> tuple[RefType, dict]:
         if "$ref" not in properties:
-            raise ValueError(f"RefTypeParser: Missing $ref in properties for {name}")
+            raise InvalidSchemaException(
+                f"Missing $ref in properties for {name}", invalid_field="$ref"
+            )
 
-        context = kwargs.get("context")
-        if context is None:
-            raise RuntimeError(
-                f"RefTypeParser: Missing `content` in properties for {name}"
+        if kwargs.get("context") is None:
+            raise InternalAssertionException(
+                "`context` must be provided in kwargs for RefTypeParser"
             )
 
         ref_cache = kwargs.get("ref_cache")
         if ref_cache is None:
-            raise RuntimeError(
-                f"RefTypeParser: Missing `ref_cache` in properties for {name}"
+            raise InternalAssertionException(
+                "`ref_cache` must be provided in kwargs for RefTypeParser"
             )
 
         mapped_properties = self.mappings_properties_builder(properties, **kwargs)
@@ -63,8 +65,8 @@ class RefTypeParser(GenericTypeParser):
                     ref_name, ref_property, **kwargs
                 )
             case _:
-                raise ValueError(
-                    f"RefTypeParser: Unsupported $ref {ref_property['$ref']}"
+                raise InvalidSchemaException(
+                    f"Unsupported $ref {ref_property['$ref']}", invalid_field="$ref"
                 )
 
         return mapped_type
@@ -93,8 +95,9 @@ class RefTypeParser(GenericTypeParser):
         if properties.get("$ref") == "#":
             ref_name = kwargs["context"].get("title")
             if ref_name is None:
-                raise ValueError(
-                    "RefTypeParser: Missing title in properties for $ref of Root Reference"
+                raise InvalidSchemaException(
+                    "Missing title in properties for $ref of Root Reference",
+                    invalid_field="title",
                 )
             return "forward_ref", ref_name, {}
 
@@ -104,8 +107,9 @@ class RefTypeParser(GenericTypeParser):
             )
             return "def_ref", target_name, target_property
 
-        raise ValueError(
-            "RefTypeParser: Only Root and $defs references are supported at the moment"
+        raise InvalidSchemaException(
+            "Only Root and $defs references are supported at the moment",
+            invalid_field="$ref",
         )
 
     def _extract_target_ref(
@@ -115,14 +119,16 @@ class RefTypeParser(GenericTypeParser):
         target_property = kwargs["context"]
         for prop_name in properties["$ref"].split("/")[1:]:
             if prop_name not in target_property:
-                raise ValueError(
-                    f"RefTypeParser: Missing {prop_name} in"
-                    " properties for $ref {properties['$ref']}"
+                raise InvalidSchemaException(
+                    f"Missing {prop_name} in properties for $ref {properties['$ref']}",
+                    invalid_field=prop_name,
                 )
             target_name = prop_name
             target_property = target_property[prop_name]  # type: ignore
 
         if not isinstance(target_name, str) or target_property is None:
-            raise ValueError(f"RefTypeParser: Invalid $ref {properties['$ref']}")
+            raise InvalidSchemaException(
+                f"Invalid $ref {properties['$ref']}", invalid_field="$ref"
+            )
 
         return target_name, target_property

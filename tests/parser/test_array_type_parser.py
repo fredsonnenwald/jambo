@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser import ArrayTypeParser
 
 from typing_extensions import get_args
@@ -17,6 +18,17 @@ class TestArrayTypeParser(TestCase):
 
         self.assertEqual(type_parsing.__origin__, list)
         self.assertEqual(element_type, str)
+
+    def test_array_parser_with_no_items(self):
+        parser = ArrayTypeParser()
+
+        properties = {
+            "default": ["a", "b", "c", "d"],
+            "maxItems": 3,
+        }
+
+        with self.assertRaises(InvalidSchemaException):
+            parser.from_properties("placeholder", properties)
 
     def test_array_parser_with_options_unique(self):
         parser = ArrayTypeParser()
@@ -67,7 +79,7 @@ class TestArrayTypeParser(TestCase):
 
         properties = {"items": {"type": "string"}, "default": ["a", 1, "c"]}
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)
 
     def test_array_parser_with_invalid_default_type(self):
@@ -75,15 +87,15 @@ class TestArrayTypeParser(TestCase):
 
         properties = {"items": {"type": "string"}, "default": 000}
 
-        with self.assertRaises(ValueError):
-            parser.from_properties("placeholder", properties)
+        with self.assertRaises(InvalidSchemaException):
+            parser.from_properties("placeholder", properties=properties)
 
     def test_array_parser_with_invalid_default_min(self):
         parser = ArrayTypeParser()
 
         properties = {"items": {"type": "string"}, "default": ["a"], "minItems": 2}
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)
 
     def test_array_parser_with_invalid_default_max(self):
@@ -95,5 +107,5 @@ class TestArrayTypeParser(TestCase):
             "maxItems": 3,
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             parser.from_properties("placeholder", properties)

@@ -36,6 +36,22 @@ jambo.parser.boolean\_type\_parser module
    :show-inheritance:
    :undoc-members:
 
+jambo.parser.const\_type\_parser module
+---------------------------------------
+
+.. automodule:: jambo.parser.const_type_parser
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+jambo.parser.enum\_type\_parser module
+--------------------------------------
+
+.. automodule:: jambo.parser.enum_type_parser
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 jambo.parser.float\_type\_parser module
 ---------------------------------------
 
@@ -52,10 +68,26 @@ jambo.parser.int\_type\_parser module
    :show-inheritance:
    :undoc-members:
 
+jambo.parser.null\_type\_parser module
+--------------------------------------
+
+.. automodule:: jambo.parser.null_type_parser
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 jambo.parser.object\_type\_parser module
 ----------------------------------------
 
 .. automodule:: jambo.parser.object_type_parser
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+jambo.parser.oneof\_type\_parser module
+---------------------------------------
+
+.. automodule:: jambo.parser.oneof_type_parser
    :members:
    :show-inheritance:
    :undoc-members:

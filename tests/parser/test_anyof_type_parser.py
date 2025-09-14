@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser.anyof_type_parser import AnyOfTypeParser
 
 from typing_extensions import Annotated, Union, get_args, get_origin
@@ -14,7 +15,7 @@ class TestAnyOfTypeParser(TestCase):
             ],
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             AnyOfTypeParser().from_properties("placeholder", properties)
 
     def test_any_of_with_invalid_properties(self):
@@ -22,7 +23,7 @@ class TestAnyOfTypeParser(TestCase):
             "anyOf": None,
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             AnyOfTypeParser().from_properties("placeholder", properties)
 
     def test_any_of_string_or_int(self):
@@ -95,5 +96,5 @@ class TestAnyOfTypeParser(TestCase):
             "default": 3.14,
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             AnyOfTypeParser().from_properties("placeholder", properties)

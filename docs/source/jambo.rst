@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   jambo.exceptions
    jambo.parser
    jambo.types
 

@@ -1,12 +1,15 @@
 from jambo import SchemaConverter
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser.oneof_type_parser import OneOfTypeParser
+
+from pydantic import ValidationError
 
 from unittest import TestCase
 
 
 class TestOneOfTypeParser(TestCase):
     def test_oneof_raises_on_invalid_property(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             OneOfTypeParser().from_properties_impl(
                 "test_field",
                 {
@@ -17,7 +20,18 @@ class TestOneOfTypeParser(TestCase):
                 ref_cache={},
             )
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
+            OneOfTypeParser().from_properties_impl(
+                "test_field",
+                {
+                    "oneOf": [],  # should throw because oneOf must be a list with at least one item
+                },
+                required=True,
+                context={},
+                ref_cache={},
+            )
+
+        with self.assertRaises(InvalidSchemaException):
             SchemaConverter.build(
                 {
                     "title": "Test",
@@ -71,13 +85,13 @@ class TestOneOfTypeParser(TestCase):
 
         Model = SchemaConverter.build(schema)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(id=-5)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(id="invalid")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(id=123.45)
 
     def test_oneof_with_conflicting_schemas(self):
@@ -103,11 +117,11 @@ class TestOneOfTypeParser(TestCase):
         obj2 = Model(data=9)
         self.assertEqual(obj2.data, 9)
 
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(ValidationError) as cm:
             Model(data=6)
         self.assertIn("matches multiple oneOf schemas", str(cm.exception))
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(data=5)
 
     def test_oneof_with_objects(self):
@@ -147,7 +161,7 @@ class TestOneOfTypeParser(TestCase):
         obj2 = Model(contact_info={"phone": "123-456-7890"})
         self.assertEqual(obj2.contact_info.phone, "123-456-7890")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(contact_info={"email": "user@example.com", "phone": "123-456-7890"})
 
     def test_oneof_with_discriminator_basic(self):
@@ -190,14 +204,14 @@ class TestOneOfTypeParser(TestCase):
         self.assertEqual(dog.pet.type, "dog")
         self.assertEqual(dog.pet.barks, False)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(pet={"type": "cat", "barks": True})
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(pet={"type": "bird", "flies": True})
 
     def test_oneof_with_invalid_types(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             SchemaConverter.build(
                 {
                     "title": "Pet",
@@ -301,13 +315,13 @@ class TestOneOfTypeParser(TestCase):
 
         Model = SchemaConverter.build(schema)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(shape={"type": "triangle", "base": 5, "height": 3})
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(shape={"type": "circle", "side": 5})
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(shape={"radius": 5})
 
     def test_oneof_missing_properties(self):
@@ -324,7 +338,7 @@ class TestOneOfTypeParser(TestCase):
             },
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             SchemaConverter.build(schema)
 
     def test_oneof_invalid_properties(self):
@@ -336,7 +350,7 @@ class TestOneOfTypeParser(TestCase):
             },
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             SchemaConverter.build(schema)
 
     def test_oneof_with_default_value(self):
@@ -373,12 +387,12 @@ class TestOneOfTypeParser(TestCase):
             },
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             SchemaConverter.build(schema)
 
     def test_oneof_discriminator_without_property_name(self):
         # Should throw because the spec determines propertyName is required for discriminator
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             SchemaConverter.build(
                 {
                     "title": "Test",
@@ -409,7 +423,7 @@ class TestOneOfTypeParser(TestCase):
 
     def test_oneof_discriminator_with_invalid_discriminator(self):
         # Should throw because a valid discriminator is required
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             SchemaConverter.build(
                 {
                     "title": "Test",
@@ -465,8 +479,9 @@ class TestOneOfTypeParser(TestCase):
         self.assertEqual(obj2.value, "very long string")
 
         # Invalid: Medium string (matches BOTH schemas - violates oneOf)
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(ValidationError) as cm:
             Model(value="hello")  # 5 chars: matches maxLength=6 AND minLength=4
+
         self.assertIn("matches multiple oneOf schemas", str(cm.exception))
 
     def test_oneof_shapes_discriminator_from_docs(self):
@@ -515,5 +530,5 @@ class TestOneOfTypeParser(TestCase):
         self.assertEqual(rectangle.shape.height, 20)
 
         # Invalid: Wrong properties for the type
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             Model(shape={"type": "circle", "width": 10})

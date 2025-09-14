@@ -1,4 +1,7 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser.allof_type_parser import AllOfTypeParser
+
+from pydantic import ValidationError
 
 from unittest import TestCase
 
@@ -42,13 +45,13 @@ class TestAllOfTypeParser(TestCase):
             "placeholder", properties
         )
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             type_parsing(name="John", age=101)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             type_parsing(name="", age=30)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             type_parsing(name="John Invalid", age=30)
 
         obj = type_parsing(name="John", age=30)
@@ -87,10 +90,10 @@ class TestAllOfTypeParser(TestCase):
             "placeholder", properties
         )
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             type_parsing(name="John")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             type_parsing(age=30)
 
         obj = type_parsing(name="John", age=30)
@@ -154,7 +157,7 @@ class TestAllOfTypeParser(TestCase):
             ]
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             AllOfTypeParser().from_properties("placeholder", properties)
 
     def test_all_of_invalid_type_not_present(self):
@@ -167,7 +170,7 @@ class TestAllOfTypeParser(TestCase):
             ]
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             AllOfTypeParser().from_properties("placeholder", properties)
 
     def test_all_of_invalid_type_in_fields(self):
@@ -180,7 +183,7 @@ class TestAllOfTypeParser(TestCase):
             ]
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             AllOfTypeParser().from_properties("placeholder", properties)
 
     def test_all_of_invalid_type_not_all_equal(self):
@@ -196,7 +199,7 @@ class TestAllOfTypeParser(TestCase):
             ]
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             AllOfTypeParser().from_properties("placeholder", properties)
 
     def test_all_of_description_field(self):
@@ -304,5 +307,5 @@ class TestAllOfTypeParser(TestCase):
             ],
         }
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidSchemaException):
             AllOfTypeParser().from_properties("placeholder", properties)

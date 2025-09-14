@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser._type_parser import GenericTypeParser
 from jambo.types.json_schema_type import JSONSchemaNativeTypes
 from jambo.types.type_parser_options import JSONSchema, TypeParserOptions
@@ -14,16 +15,23 @@ class EnumTypeParser(GenericTypeParser):
         self, name: str, properties: JSONSchema, **kwargs: Unpack[TypeParserOptions]
     ):
         if "enum" not in properties:
-            raise ValueError(f"Enum type {name} must have 'enum' property defined.")
+            raise InvalidSchemaException(
+                f"Enum type {name} must have 'enum' property defined.",
+                invalid_field="enum",
+            )
 
         enum_values = properties["enum"]
 
         if not isinstance(enum_values, list):
-            raise ValueError(f"Enum type {name} must have 'enum' as a list of values.")
+            raise InvalidSchemaException(
+                f"Enum type {name} must have 'enum' as a list of values.",
+                invalid_field="enum",
+            )
 
         if any(not isinstance(value, JSONSchemaNativeTypes) for value in enum_values):
-            raise ValueError(
-                f"Enum type {name} must have 'enum' values of allowed types: {JSONSchemaNativeTypes}."
+            raise InvalidSchemaException(
+                f"Enum type {name} must have 'enum' values of allowed types: {JSONSchemaNativeTypes}.",
+                invalid_field="enum",
             )
 
         # Create a new Enum type dynamically

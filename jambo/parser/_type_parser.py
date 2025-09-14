@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.types.type_parser_options import JSONSchema, TypeParserOptions
 
 from pydantic import Field, TypeAdapter
@@ -46,8 +47,8 @@ class GenericTypeParser(ABC, Generic[T]):
         )
 
         if not self._validate_default(parsed_type, parsed_properties):
-            raise ValueError(
-                f"Default value {properties.get('default')} is not valid for type {parsed_type.__name__}"
+            raise InvalidSchemaException(
+                "Default value is not valid", invalid_field=name
             )
 
         return parsed_type, parsed_properties
@@ -79,7 +80,9 @@ class GenericTypeParser(ABC, Generic[T]):
             if schema_value is None or schema_value == properties[schema_type]:  # type: ignore
                 return subcls
 
-        raise ValueError("Unknown type")
+        raise InvalidSchemaException(
+            "No suitable type parser found", invalid_field=str(properties)
+        )
 
     @classmethod
     def _get_schema_type(cls) -> tuple[str, str | None]:
