@@ -5,7 +5,7 @@ from unittest import TestCase
 
 class TestInternalAssertionException(TestCase):
     def test_inheritance(self):
-        self.assertTrue(issubclass(InternalAssertionException, AssertionError))
+        self.assertTrue(issubclass(InternalAssertionException, RuntimeError))
 
     def test_message(self):
         message = "This is an internal assertion error."

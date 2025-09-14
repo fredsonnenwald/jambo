@@ -1,4 +1,4 @@
-class InternalAssertionException(AssertionError):
+class InternalAssertionException(RuntimeError):
     """Exception raised for internal assertions."""
 
     def __init__(
