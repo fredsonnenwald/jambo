@@ -21,6 +21,17 @@ class TestOneOfTypeParser(TestCase):
             )
 
         with self.assertRaises(InvalidSchemaException):
+            OneOfTypeParser().from_properties_impl(
+                "test_field",
+                {
+                    "oneOf": [],  # should throw because oneOf must be a list with at least one item
+                },
+                required=True,
+                context={},
+                ref_cache={},
+            )
+
+        with self.assertRaises(InvalidSchemaException):
             SchemaConverter.build(
                 {
                     "title": "Test",

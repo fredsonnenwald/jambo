@@ -19,6 +19,17 @@ class TestArrayTypeParser(TestCase):
         self.assertEqual(type_parsing.__origin__, list)
         self.assertEqual(element_type, str)
 
+    def test_array_parser_with_no_items(self):
+        parser = ArrayTypeParser()
+
+        properties = {
+            "default": ["a", "b", "c", "d"],
+            "maxItems": 3,
+        }
+
+        with self.assertRaises(InvalidSchemaException):
+            parser.from_properties("placeholder", properties)
+
     def test_array_parser_with_options_unique(self):
         parser = ArrayTypeParser()
 
