@@ -187,7 +187,8 @@ class TestStringTypeParser(TestCase):
             parser.from_properties("placeholder", properties)
 
         self.assertEqual(
-            str(context.exception), "Unsupported string format: unsupported-format"
+            str(context.exception),
+            "Invalid JSON Schema: Unsupported string format: unsupported-format (invalid field: format)",
         )
 
     def test_string_parser_with_date_format(self):

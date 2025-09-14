@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser._type_parser import GenericTypeParser
 from jambo.types.type_parser_options import TypeParserOptions
 
@@ -26,8 +27,15 @@ class ArrayTypeParser(GenericTypeParser):
     ):
         item_properties = kwargs.copy()
         item_properties["required"] = True
+
+        if (items := properties.get("items")) is None:
+            raise InvalidSchemaException(
+                f"Array type {name} must have 'items' property defined.",
+                invalid_field="items",
+            )
+
         _item_type, _item_args = GenericTypeParser.type_from_properties(
-            name, properties["items"], **item_properties
+            name, items, **item_properties
         )
 
         wrapper_type = set if properties.get("uniqueItems", False) else list
@@ -47,8 +55,9 @@ class ArrayTypeParser(GenericTypeParser):
             return lambda: None
 
         if not isinstance(default_list, Iterable):
-            raise ValueError(
-                f"Default value for array must be an iterable, got {type(default_list)}"
+            raise InvalidSchemaException(
+                f"Default value for array must be an iterable, got {type(default_list)}",
+                invalid_field="default",
             )
 
         return lambda: copy.deepcopy(wrapper_type(default_list))

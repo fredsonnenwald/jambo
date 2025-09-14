@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser._type_parser import GenericTypeParser
 from jambo.types.json_schema_type import JSONSchemaNativeTypes
 from jambo.types.type_parser_options import TypeParserOptions
@@ -18,13 +19,17 @@ class ConstTypeParser(GenericTypeParser):
         self, name, properties, **kwargs: Unpack[TypeParserOptions]
     ):
         if "const" not in properties:
-            raise ValueError(f"Const type {name} must have 'const' property defined.")
+            raise InvalidSchemaException(
+                f"Const type {name} must have 'const' property defined.",
+                invalid_field="const",
+            )
 
         const_value = properties["const"]
 
         if not isinstance(const_value, JSONSchemaNativeTypes):
-            raise ValueError(
-                f"Const type {name} must have 'const' value of allowed types: {JSONSchemaNativeTypes}."
+            raise InvalidSchemaException(
+                f"Const type {name} must have 'const' value of allowed types: {JSONSchemaNativeTypes}.",
+                invalid_field="const",
             )
 
         const_type = self._build_const_type(const_value)

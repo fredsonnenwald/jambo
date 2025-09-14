@@ -40,7 +40,7 @@ class TestRefTypeParser(TestCase):
             },
         }
 
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             RefTypeParser().from_properties(
                 "person",
                 properties,
@@ -63,7 +63,7 @@ class TestRefTypeParser(TestCase):
             },
         }
 
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             RefTypeParser().from_properties(
                 "person",
                 properties,

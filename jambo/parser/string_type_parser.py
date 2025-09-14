@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser._type_parser import GenericTypeParser
 from jambo.types.type_parser_options import TypeParserOptions
 
@@ -54,7 +55,9 @@ class StringTypeParser(GenericTypeParser):
             return str, mapped_properties
 
         if format_type not in self.format_type_mapping:
-            raise ValueError(f"Unsupported string format: {format_type}")
+            raise InvalidSchemaException(
+                f"Unsupported string format: {format_type}", invalid_field="format"
+            )
 
         mapped_type = self.format_type_mapping[format_type]
         if format_type in self.format_pattern_mapping:

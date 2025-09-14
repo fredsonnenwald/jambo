@@ -1,3 +1,4 @@
+from jambo.exceptions import InvalidSchemaException
 from jambo.parser._type_parser import GenericTypeParser
 from jambo.types.type_parser_options import TypeParserOptions
 
@@ -20,6 +21,9 @@ class BooleanTypeParser(GenericTypeParser):
 
         default_value = properties.get("default")
         if default_value is not None and not isinstance(default_value, bool):
-            raise ValueError(f"Default value for {name} must be a boolean.")
+            raise InvalidSchemaException(
+                f"Default value for {name} must be a boolean.",
+                invalid_field="default",
+            )
 
         return bool, mapped_properties

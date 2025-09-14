@@ -52,7 +52,7 @@ JSONSchema = TypedDict(
         "minProperties": int,
         "maxProperties": int,
         "dependencies": Dict[str, Union[List[str], "JSONSchema"]],
-        "items": Union["JSONSchema", List["JSONSchema"]],
+        "items": "JSONSchema",
         "prefixItems": List["JSONSchema"],
         "additionalItems": Union[bool, "JSONSchema"],
         "contains": "JSONSchema",
